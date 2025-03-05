@@ -1,0 +1,2 @@
+/home/ogega/Andoid_Projects/FinTrack-master/android/app/.cxx/Debug/4q5w1l84/x86/CMakeFiles/edit_cache.dir
+/home/ogega/Andoid_Projects/FinTrack-master/android/app/.cxx/Debug/4q5w1l84/x86/CMakeFiles/rebuild_cache.dir

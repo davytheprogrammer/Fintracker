@@ -1,0 +1,1 @@
+/home/ogega/Andoid_Projects/FinTrack-master/build/app/intermediates/cxx/RelWithDebInfo/6l626m2u/obj/arm64-v8a
