@@ -4,7 +4,7 @@ import 'screens/analytics/ai_analytics_page.dart';
 import 'screens/goals/goals.dart';
 import 'screens/home_screen/home.dart';
 import 'screens/investment_news/news.dart';
-import 'screens/profile/account.dart';
+import 'screens/settings.dart';
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -20,8 +20,8 @@ class _AppState extends State<App> {
     const HomePage(),
     const AIAnalyticsPage(),
     const GoalsPage(),
-    const InvestmentsPage(),
-    AccountPage(),
+    InvestmentsPage(),
+    const SettingsPage(),
   ];
 
   void _onItemTapped(int index) {

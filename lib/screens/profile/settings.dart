@@ -30,14 +30,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
       // Also load from Firestore if available
       if (currentUser != null) {
-        final userDoc = await _firestore
-            .collection('users')
-            .doc(currentUser!.uid)
-            .get();
+        final userDoc =
+            await _firestore.collection('users').doc(currentUser!.uid).get();
 
         if (userDoc.exists) {
           setState(() {
-            notificationsEnabled = userDoc.data()?['notifications_enabled'] ?? true;
+            notificationsEnabled =
+                userDoc.data()?['notifications_enabled'] ?? true;
           });
         }
       }
@@ -73,7 +72,8 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Future<void> _updatePassword(String currentPassword, String newPassword) async {
+  Future<void> _updatePassword(
+      String currentPassword, String newPassword) async {
     try {
       setState(() => _isLoading = true);
 
@@ -236,7 +236,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       subtitle: "Manage your notification preferences",
                       trailing: Switch(
                         value: notificationsEnabled,
-                        onChanged: (value) => _updateNotificationSettings(value),
+                        onChanged: (value) =>
+                            _updateNotificationSettings(value),
                       ),
                     ),
                     _buildSettingTile(
@@ -285,12 +286,10 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: user?.photoURL != null
-                  ? NetworkImage(user!.photoURL!)
-                  : null,
-              child: user?.photoURL == null
-                  ? Icon(Icons.person, size: 30)
-                  : null,
+              backgroundImage:
+                  user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
+              child:
+                  user?.photoURL == null ? Icon(Icons.person, size: 30) : null,
             ),
             SizedBox(width: 16),
             Expanded(
@@ -327,9 +326,9 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
           ),
         ),
         ...children,
@@ -378,11 +377,12 @@ class _SettingsPageState extends State<SettingsPage> {
             color: theme.textTheme.bodySmall?.color,
           ),
         ),
-        trailing: trailing ?? Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-          color: theme.iconTheme.color,
-        ),
+        trailing: trailing ??
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: theme.iconTheme.color,
+            ),
         onTap: onTap,
       ),
     );
@@ -450,7 +450,7 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             Text(
               "Are you sure you want to delete your account? "
-                  "This action cannot be undone and all your data will be permanently removed.",
+              "This action cannot be undone and all your data will be permanently removed.",
             ),
             SizedBox(height: 16),
             TextField(
