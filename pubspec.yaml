@@ -14,6 +14,7 @@ dependencies:
 
   webview_flutter: ^4.7.0
   cupertino_icons: ^1.0.6
+  flutter_markdown: ^0.7.6+2
 
   shared_preferences: ^2.0.8
   confetti: ^0.8.0

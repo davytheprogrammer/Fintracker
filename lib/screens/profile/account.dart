@@ -49,7 +49,8 @@ class AccountPage extends StatelessWidget {
               elevation: 4,
               child: ListTile(
                 leading: Icon(Icons.favorite, color: Colors.blue),
-                title: Text("Donate Today", style: TextStyle(fontWeight: FontWeight.bold)),
+                title: Text("Donate Today",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text("Support us and make a difference."),
                 trailing: Icon(Icons.arrow_forward, color: Colors.blue),
                 onTap: () {
@@ -105,23 +106,11 @@ class AccountPage extends StatelessWidget {
             Column(
               children: [
                 _buildSettingsTile(
-                    context,
-                    Icons.palette,
-                    "App appearance",
-                    AppearancePage()
-                ),
+                    context, Icons.palette, "App appearance", AppearancePage()),
                 _buildSettingsTile(
-                    context,
-                    Icons.group,
-                    "Invite your friends",
-                    null
-                ),
+                    context, Icons.group, "Invite your friends", null),
                 _buildSettingsTile(
-                    context,
-                    Icons.settings,
-                    "Settings",
-                    SettingsPage()
-                ),
+                    context, Icons.settings, "Settings", SettingsPage()),
               ],
             ),
 
@@ -139,10 +128,8 @@ class AccountPage extends StatelessWidget {
                 leading: Icon(Icons.logout, color: Colors.red),
                 title: Text(
                   "Log out",
-                  style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold
-                  ),
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                 ),
                 onTap: () async {
                   try {
@@ -171,18 +158,11 @@ class AccountPage extends StatelessWidget {
   }
 
   // Helper method to build settings tiles
-  ListTile _buildSettingsTile(
-      BuildContext context,
-      IconData icon,
-      String title,
-      Widget? destinationPage
-      ) {
+  ListTile _buildSettingsTile(BuildContext context, IconData icon, String title,
+      Widget? destinationPage) {
     return ListTile(
       leading: Icon(icon, color: Colors.teal),
-      title: Text(
-          title,
-          style: TextStyle(fontWeight: FontWeight.w500)
-      ),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.w500)),
       trailing: Icon(Icons.arrow_forward, color: Colors.teal),
       onTap: () {
         if (destinationPage != null) {

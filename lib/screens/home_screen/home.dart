@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+
+import '../form/transaction_modal.dart';
 import 'widgets/balance_card.dart';
 import 'widgets/expense_chart.dart';
+import 'widgets/floating.dart';
 import 'widgets/recent_transactions.dart';
 import 'widgets/budget_progress.dart';
 
@@ -40,7 +43,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _ensureTransactionsCollection(String userId) async {
     final transactionsRef = _firestore.collection('transactions');
-    final snapshot = await transactionsRef.where('userId', isEqualTo: userId).limit(1).get();
+    final snapshot =
+        await transactionsRef.where('userId', isEqualTo: userId).limit(1).get();
 
     if (snapshot.docs.isEmpty) {
       await transactionsRef.add({
@@ -56,7 +60,8 @@ class _HomePageState extends State<HomePage> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
 
         if (userDoc.exists && mounted) {
           setState(() {
@@ -100,6 +105,16 @@ class _HomePageState extends State<HomePage> {
     _totalBalance = totalIncome - totalExpenses;
   }
 
+  void _showAddTransactionSheet(bool isIncome) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return TransactionFormPage(isIncome: isIncome);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = _auth.currentUser;
@@ -109,12 +124,12 @@ class _HomePageState extends State<HomePage> {
         preferredSize: const Size.fromHeight(80.0),
         child: Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFFF06292), // Light pink
-                const Color(0xFFE91E63), // Darker pink
+                Color(0xFFF06292), // Light pink
+                Color(0xFFE91E63), // Darker pink
               ],
             ),
             boxShadow: [
@@ -127,7 +142,8 @@ class _HomePageState extends State<HomePage> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -172,7 +188,8 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 28),
+                        icon: const Icon(Icons.notifications_outlined,
+                            color: Colors.white, size: 28),
                         onPressed: () {
                           // Handle notifications
                         },
@@ -195,8 +212,10 @@ class _HomePageState extends State<HomePage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: user?.photoURL != null
-                              ? Image.network(user!.photoURL!, fit: BoxFit.cover)
-                              : const Icon(Icons.person, color: Color(0xFFE91E63)),
+                              ? Image.network(user!.photoURL!,
+                                  fit: BoxFit.cover)
+                              : const Icon(Icons.person,
+                                  color: Color(0xFFE91E63)),
                         ),
                       ),
                     ],
@@ -211,10 +230,10 @@ class _HomePageState extends State<HomePage> {
         child: StreamBuilder<QuerySnapshot>(
           stream: user != null
               ? _firestore
-              .collection('transactions')
-              .where('userId', isEqualTo: user.uid)
-              .orderBy('date', descending: true)
-              .snapshots()
+                  .collection('transactions')
+                  .where('userId', isEqualTo: user.uid)
+                  .orderBy('date', descending: true)
+                  .snapshots()
               : null,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -230,7 +249,8 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/empty_state.png', height: 150), // Add an illustration
+                    Image.asset('assets/empty_state.png',
+                        height: 150), // Add an illustration
                     const SizedBox(height: 16),
                     const Text(
                       'No transactions found.',
@@ -243,9 +263,11 @@ class _HomePageState extends State<HomePage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFE91E63), // Pink color
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
-                      child: const Text('Add Transaction', style: TextStyle(color: Colors.white)),
+                      child: const Text('Add Transaction',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -266,15 +288,20 @@ class _HomePageState extends State<HomePage> {
                     totalBalance: _totalBalance,
                     totalIncome: _totalIncome,
                     totalExpenses: _totalExpenses,
-                    isLoading: snapshot.connectionState == ConnectionState.waiting,
+                    isLoading:
+                        snapshot.connectionState == ConnectionState.waiting,
                     formatCurrency: _formatCurrency,
                   ),
                   ExpenseChart(
-                    transactions: transactions.map((doc) => doc.data() as Map<String, dynamic>).toList(),
+                    transactions: transactions
+                        .map((doc) => doc.data() as Map<String, dynamic>)
+                        .toList(),
                     formatCurrency: _formatCurrency,
                   ),
                   RecentTransactions(
-                    transactions: transactions.map((doc) => doc.data() as Map<String, dynamic>).toList(),
+                    transactions: transactions
+                        .map((doc) => doc.data() as Map<String, dynamic>)
+                        .toList(),
                     formatCurrency: _formatCurrency,
                   ),
                   BudgetProgress(
@@ -287,6 +314,25 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           },
+        ),
+      ),
+      floatingActionButton: null, // Remove the floating action button
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.add, color: Colors.green),
+              onPressed: () => _showAddTransactionSheet(true),
+            ),
+            IconButton(
+              icon: const Icon(Icons.remove, color: Colors.redAccent),
+              onPressed: () => _showAddTransactionSheet(false),
+            ),
+          ],
         ),
       ),
     );

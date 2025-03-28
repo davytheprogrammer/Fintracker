@@ -1,4 +1,6 @@
 // authenticate.dart
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:Finspense/screens/authentication/login.dart';
 import 'package:Finspense/screens/authentication/register.dart';
@@ -10,7 +12,8 @@ class Authenticate extends StatefulWidget {
   _AuthenticateState createState() => _AuthenticateState();
 }
 
-class _AuthenticateState extends State<Authenticate> with SingleTickerProviderStateMixin {
+class _AuthenticateState extends State<Authenticate>
+    with SingleTickerProviderStateMixin {
   bool showSignIn = true;
   late AnimationController _controller;
   late Animation<double> _animation;

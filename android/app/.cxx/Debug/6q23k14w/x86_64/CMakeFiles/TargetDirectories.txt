@@ -1,0 +1,2 @@
+/home/ogega/Projects/Fintracker/android/app/.cxx/Debug/6q23k14w/x86_64/CMakeFiles/edit_cache.dir
+/home/ogega/Projects/Fintracker/android/app/.cxx/Debug/6q23k14w/x86_64/CMakeFiles/rebuild_cache.dir
