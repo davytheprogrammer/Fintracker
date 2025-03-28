@@ -315,7 +315,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     - Top Spending Categories: $categoryBreakdown
     - Spending Trend: $spendingTrend
 
-    As a friendly financial advisor, provide personalized insights about the spending patterns and give 3 specific, practical recommendations to improve financial health. Be conversational but concise.
+    As a friendly financial advisor, provide personalized insights about the spending patterns and give 3 specific, practical recommendations to improve financial health. Be conversational but concise. and your generated text should be a beautiful markdown
     ''';
   }
 
@@ -353,7 +353,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
             {
               "role": "system",
               "content":
-                  "You are a friendly financial advisor. Provide helpful, encouraging advice."
+                  "You are a friendly financial advisor. Provide helpful, encouraging advice. and do not provide a too long text"
             },
             {"role": "user", "content": prompt}
           ],

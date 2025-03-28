@@ -30,26 +30,28 @@ class CategoryDonutChart extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Spending by Category',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: Colors.pink[800],
               ),
             ),
             const SizedBox(height: 20),
             sortedCategories.isEmpty
-                ? const Center(
+                ? Center(
                     child: Padding(
-                      padding: EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(20.0),
                       child: Text(
                         'No expense data available',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.pink[300]),
                       ),
                     ),
                   )
@@ -180,10 +182,18 @@ class CategoryDonutChart extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
+                        color: Colors.pink[700],
                         fontWeight: selectedCategoryIndex == index
                             ? FontWeight.bold
                             : FontWeight.normal,
                       ),
+                    ),
+                  ),
+                  Text(
+                    '${getPercentage(value, totalExpenses).toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.pink[600],
                     ),
                   ),
                 ],
@@ -201,17 +211,22 @@ class CategoryDonutChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Colors.pink[50],
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.pink[100]!,
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             category.key,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
+              color: Colors.pink[700],
             ),
           ),
           const SizedBox(height: 8),
@@ -220,11 +235,17 @@ class CategoryDonutChart extends StatelessWidget {
             children: [
               Text(
                 'Amount: ${formatCurrency(category.value)}',
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.pink[600],
+                ),
               ),
               Text(
                 '${percentage.toStringAsFixed(1)}% of total expenses',
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.pink[600],
+                ),
               ),
             ],
           ),
