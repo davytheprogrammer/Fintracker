@@ -12,13 +12,14 @@ class UserModel {
 
   UserModel({
     required this.uid,
-    DateTime? soberDate,  // Make soberDate optional with default value
-    this.streakDays = 0,  // Provide default value for streakDays
+    DateTime? soberDate, // Make soberDate optional with default value
+    this.streakDays = 0, // Provide default value for streakDays
     this.relapses = const [],
     this.goals = const {},
     this.supportNetwork = const [],
     this.emergencyContacts = const [],
-  }) : this.soberDate = soberDate ?? DateTime.now();  // Set default value if not provided
+  }) : this.soberDate =
+            soberDate ?? DateTime.now(); // Set default value if not provided
 
   // Factory constructor to create UserModel from Firestore document
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -29,8 +30,10 @@ class UserModel {
           ? (data['soberDate'] as Timestamp).toDate()
           : DateTime.now(),
       streakDays: data['streakDays'] ?? 0,
-      relapses: (data['relapses'] as List<dynamic>?)?.map((x) =>
-          (x as Timestamp).toDate()).toList() ?? [],
+      relapses: (data['relapses'] as List<dynamic>?)
+              ?.map((x) => (x as Timestamp).toDate())
+              .toList() ??
+          [],
       goals: Map<String, dynamic>.from(data['goals'] ?? {}),
       supportNetwork: List<String>.from(data['supportNetwork'] ?? []),
       emergencyContacts: List<String>.from(data['emergencyContacts'] ?? []),

@@ -49,7 +49,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -124,7 +124,7 @@ class _LoginState extends State<Login> {
                       prefixIcon:
                           Icon(Icons.email_outlined, color: Colors.grey[600]),
                       filled: true,
-                      fillColor: Colors.grey[50],
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -169,7 +169,7 @@ class _LoginState extends State<Login> {
                             () => _obscurePassword = !_obscurePassword),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[50],
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,

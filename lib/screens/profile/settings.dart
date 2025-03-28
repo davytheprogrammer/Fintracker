@@ -139,6 +139,17 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      await _auth.signOut();
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error logging out: $e')),
+      );
+    }
+  }
+
   void _showReauthenticateDialog() {
     final passwordController = TextEditingController();
 
@@ -207,6 +218,12 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _logout(),
+          ),
+        ],
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
       ),

@@ -11,7 +11,6 @@ class Routes {
   static const String app = '/app';
   static const String wrapper = '/wrapper';
   static const String home = '/home';
-
 }
 
 void main() async {
@@ -26,7 +25,7 @@ void main() async {
 }
 
 class ThemeProvider with ChangeNotifier {
-  ThemeMode _themeMode = ThemeMode.dark;
+  ThemeMode _themeMode = ThemeMode.light; // Changed default to light mode
 
   ThemeMode get themeMode => _themeMode;
 
@@ -39,7 +38,8 @@ class ThemeProvider with ChangeNotifier {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
+  static final ValueNotifier<ThemeMode> themeNotifier =
+      ValueNotifier(ThemeMode.light); // Changed default to light mode
 
   @override
   Widget build(BuildContext context) {
