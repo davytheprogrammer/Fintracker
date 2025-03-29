@@ -30,15 +30,21 @@ dependencies:
   cached_network_image: ^3.3.0
   flutter_custom_tabs: ^1.2.1
   rss_dart: ^1.0.12
+  printing: ^5.13.1
+  
 
 
 
   xml: ^6.3.0
   geolocator: ^10.0.0
   geocoding: ^2.1.0
+  google_generative_ai: ^0.4.6
+  flutter_timeline: ^0.3.0
+  pdf: ^3.11.3
+  graphview: ^1.2.0
+  
 
 
-  # Firebase dependencies
   firebase_core: ^2.24.2
   firebase_auth: ^4.17.6
   cloud_firestore: ^4.15.6

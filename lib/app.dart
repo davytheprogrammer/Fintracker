@@ -1,9 +1,9 @@
+import 'package:Finspense/screens/investment_news/investments_page.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/analytics/ai_analytics_page.dart';
 import 'screens/goals/goals.dart';
 import 'screens/home_screen/home.dart';
-import 'screens/investment_news/news.dart';
 import 'screens/profile/settings.dart';
 
 class App extends StatefulWidget {
