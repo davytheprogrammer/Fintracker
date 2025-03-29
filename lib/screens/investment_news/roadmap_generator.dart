@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart'; // Add this import
+import 'package:intl/intl.dart'; // Add this for date formatting
 
 import 'error_logger.dart';
 
 class RoadmapGenerator {
+  // Add function to get current date
+  static String _getCurrentDate() {
+    return DateFormat('MMMM dd, yyyy').format(DateTime.now());
+  }
+
+  // Add function to get currency symbol from SharedPreferences
+  static Future<String> _getCurrencySymbol() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('currencySymbol') ??
+          'KES'; // Default to KES if not found
+    } catch (e) {
+      logError('Failed to get currency symbol', e);
+      return 'KES'; // Fallback to KES on error
+    }
+  }
+
   static Future<void> generateRoadmap({
     required TextEditingController ideaController,
     required Function(Map<String, dynamic>) onSuccess,
@@ -13,10 +32,8 @@ class RoadmapGenerator {
     required Function(Object) onFallbackError,
   }) async {
     try {
-      // First attempt with strict instructions
       final primaryResponse = await _makePrimaryApiCall(ideaController.text);
 
-      // Try parsing the primary response
       try {
         final sanitizedResponse = _sanitizeJsonResponse(primaryResponse);
         final jsonResponse = json.decode(sanitizedResponse);
@@ -29,7 +46,6 @@ class RoadmapGenerator {
         logError('Primary response parsing failed', e);
       }
 
-      // If primary fails, try cleaning with secondary API
       try {
         final cleanedResponse = await _makeCleaningApiCall(primaryResponse);
         final sanitizedResponse = _sanitizeJsonResponse(cleanedResponse);
@@ -43,7 +59,6 @@ class RoadmapGenerator {
         logError('Cleaning API attempt failed', e);
       }
 
-      // If both attempts fail, fall back to markdown
       await fallbackMarkdownGeneration(
         ideaController: ideaController,
         onSuccess: onFallback,
@@ -74,8 +89,16 @@ class RoadmapGenerator {
     5. If you must include comments, put them inside JSON strings
     ''';
 
+    final currencySymbol = await _getCurrencySymbol();
+    final currentDate = _getCurrentDate();
+
     final prompt = '''
     $strictInstructions
+    
+    ADDITIONAL INSTRUCTIONS:
+    1. Use the current date "$currentDate" when generating timeline dates
+    2. Use the currency symbol "$currencySymbol" for all monetary values if it is null assume the user is using KES
+    3. If no specific dates are provided, calculate relative to "$currentDate"
     
     ${_createRoadmapPrompt(idea)}
     ''';
@@ -119,8 +142,13 @@ class RoadmapGenerator {
         apiKey: 'AIzaSyCOutG-g_tVZKzbTtH0bzNjWdoaDVA2YCo',
       );
 
-      final response = await model.generateContent(
-          [Content.text(_createFallbackPrompt(ideaController.text))]);
+      final currencySymbol = await _getCurrencySymbol();
+      final currentDate = _getCurrentDate();
+
+      final response = await model.generateContent([
+        Content.text(_createFallbackPrompt(
+            ideaController.text, currentDate, currencySymbol))
+      ]);
 
       final fallbackRoadmap = {
         'idea_validity': 'valid',
@@ -149,13 +177,11 @@ class RoadmapGenerator {
   }
 
   static String _sanitizeJsonResponse(String rawResponse) {
-    // Remove all markdown code blocks
     final withoutMarkdown = rawResponse
         .replaceAll(RegExp(r'```json'), '')
         .replaceAll(RegExp(r'```'), '')
         .trim();
 
-    // Remove any non-JSON content before/after
     final jsonStart = withoutMarkdown.indexOf('{');
     final jsonEnd = withoutMarkdown.lastIndexOf('}');
 
@@ -175,7 +201,7 @@ class RoadmapGenerator {
 
   static String _createRoadmapPrompt(String investmentIdea) {
     return '''
-    Generate a detailed investment roadmap for: $investmentIdea
+    Generate a detailed investment roadmap for: $investmentIdea 
     
     Respond STRICTLY in this JSON format:
     {
@@ -204,9 +230,13 @@ class RoadmapGenerator {
     ''';
   }
 
-  static String _createFallbackPrompt(String investmentIdea) {
+  static String _createFallbackPrompt(
+      String investmentIdea, String currentDate, String currencySymbol) {
     return '''
     Generate a detailed investment roadmap for: $investmentIdea
+    
+    Use the current date "$currentDate" for timeline calculations
+    Use the currency symbol "$currencySymbol" for all monetary values if it is null assume the user is using KES
     
     Format as comprehensive Markdown with these sections:
     # Executive Summary
