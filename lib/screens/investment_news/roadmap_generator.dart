@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart'; // Add this import
-import 'package:intl/intl.dart'; // Add this for date formatting
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'error_logger.dart';
 
 class RoadmapGenerator {
-  // Add function to get current date
   static String _getCurrentDate() {
     return DateFormat('MMMM dd, yyyy').format(DateTime.now());
   }
 
-  // Add function to get currency symbol from SharedPreferences
   static Future<String> _getCurrencySymbol() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('currencySymbol') ??
-          'KES'; // Default to KES if not found
+      return prefs.getString('currencySymbol') ?? 'KES'; // Default to KES
     } catch (e) {
       logError('Failed to get currency symbol', e);
-      return 'KES'; // Fallback to KES on error
+      return 'KES'; // Fallback to KES
     }
   }
 
   static Future<void> generateRoadmap({
     required TextEditingController ideaController,
+    required TextEditingController budgetController,
     required Function(Map<String, dynamic>) onSuccess,
     required Function(Object) onError,
     required Function(Map<String, dynamic>) onFallback,
     required Function(Object) onFallbackError,
   }) async {
     try {
-      final primaryResponse = await _makePrimaryApiCall(ideaController.text);
+      final primaryResponse = await _makePrimaryApiCall(
+        ideaController.text,
+        budgetController.text,
+      );
 
       try {
         final sanitizedResponse = _sanitizeJsonResponse(primaryResponse);
@@ -61,6 +61,7 @@ class RoadmapGenerator {
 
       await fallbackMarkdownGeneration(
         ideaController: ideaController,
+        budgetController: budgetController,
         onSuccess: onFallback,
         onError: onFallbackError,
       );
@@ -68,13 +69,14 @@ class RoadmapGenerator {
       logError('Roadmap generation failed', e);
       await fallbackMarkdownGeneration(
         ideaController: ideaController,
+        budgetController: budgetController,
         onSuccess: onFallback,
         onError: onFallbackError,
       );
     }
   }
 
-  static Future<String> _makePrimaryApiCall(String idea) async {
+  static Future<String> _makePrimaryApiCall(String idea, String budget) async {
     final model = GenerativeModel(
       model: 'gemini-1.5-flash',
       apiKey: 'AIzaSyCOutG-g_tVZKzbTtH0bzNjWdoaDVA2YCo',
@@ -97,8 +99,10 @@ class RoadmapGenerator {
     
     ADDITIONAL INSTRUCTIONS:
     1. Use the current date "$currentDate" when generating timeline dates
-    2. Use the currency symbol "$currencySymbol" for all monetary values if it is null assume the user is using KES
-    3. If no specific dates are provided, calculate relative to "$currentDate"
+    2. ALWAYS use the currency symbol "KES" (Kenyan Shillings) for all monetary values
+    3. The user's budget is: $budget KES - scale financial projections accordingly
+    4. If no specific dates are provided, calculate relative to "$currentDate"
+    5. All financial amounts must be in KES (Kenyan Shillings)
     
     ${_createRoadmapPrompt(idea)}
     ''';
@@ -133,6 +137,7 @@ class RoadmapGenerator {
 
   static Future<void> fallbackMarkdownGeneration({
     required TextEditingController ideaController,
+    required TextEditingController budgetController,
     required Function(Map<String, dynamic>) onSuccess,
     required Function(Object) onError,
   }) async {
@@ -142,12 +147,14 @@ class RoadmapGenerator {
         apiKey: 'AIzaSyCOutG-g_tVZKzbTtH0bzNjWdoaDVA2YCo',
       );
 
-      final currencySymbol = await _getCurrencySymbol();
       final currentDate = _getCurrentDate();
 
       final response = await model.generateContent([
         Content.text(_createFallbackPrompt(
-            ideaController.text, currentDate, currencySymbol))
+          ideaController.text,
+          budgetController.text,
+          currentDate,
+        ))
       ]);
 
       final fallbackRoadmap = {
@@ -231,24 +238,28 @@ class RoadmapGenerator {
   }
 
   static String _createFallbackPrompt(
-      String investmentIdea, String currentDate, String currencySymbol) {
+      String investmentIdea, String budget, String currentDate) {
     return '''
     Generate a detailed investment roadmap for: $investmentIdea
     
-    Use the current date "$currentDate" for timeline calculations
-    Use the currency symbol "$currencySymbol" for all monetary values if it is null assume the user is using KES
+    User's Budget: $budget KES (Kenyan Shillings)
+    Current Date: $currentDate
     
     Format as comprehensive Markdown with these sections:
     # Executive Summary
-    # Timeline and Phases
-    # Financial Projections
+    # Timeline and Phases (relative to $currentDate)
+    # Financial Projections (in KES)
     # Risk Assessment
     # Market Analysis
     # Implementation Strategy
     # Conclusion
     
-    Use bullet points, tables, and clear organization.
-    Include relevant icons to make it look cooler.
+    Key Requirements:
+    - All monetary values must be in KES (Kenyan Shillings)
+    - Scale financial projections based on the $budget KES budget
+    - Use relative dates from $currentDate
+    - Include tables for financial data
+    - Use bullet points for clarity
     ''';
   }
 }

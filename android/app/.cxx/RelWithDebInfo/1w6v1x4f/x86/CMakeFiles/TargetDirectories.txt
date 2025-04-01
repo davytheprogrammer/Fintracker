@@ -1,0 +1,2 @@
+/home/ogega/Projects/Fintracker/android/app/.cxx/RelWithDebInfo/1w6v1x4f/x86/CMakeFiles/edit_cache.dir
+/home/ogega/Projects/Fintracker/android/app/.cxx/RelWithDebInfo/1w6v1x4f/x86/CMakeFiles/rebuild_cache.dir

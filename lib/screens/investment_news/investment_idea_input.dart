@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class InvestmentIdeaInput extends StatelessWidget {
   final TextEditingController ideaController;
+  final TextEditingController budgetController;
   final bool isLoading;
   final int dailyUsageCount;
   final int maxDailyRoadmaps;
@@ -11,6 +12,7 @@ class InvestmentIdeaInput extends StatelessWidget {
 
   const InvestmentIdeaInput({
     required this.ideaController,
+    required this.budgetController,
     required this.isLoading,
     required this.dailyUsageCount,
     required this.maxDailyRoadmaps,
@@ -21,6 +23,11 @@ class InvestmentIdeaInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool canGenerate = ideaController.text.length >= 15 &&
+        ideaController.text.split(' ').length >= 10 &&
+        budgetController.text.isNotEmpty &&
+        double.tryParse(budgetController.text) != null;
+
     return Container(
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey.shade800 : Colors.white,
@@ -84,15 +91,65 @@ class InvestmentIdeaInput extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
+            Text(
+              'Input Budget (\$)',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 8),
+            TextFormField(
+              controller: budgetController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'E.g., 5000',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: theme.colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
+                filled: true,
+                fillColor:
+                    isDarkMode ? Colors.grey.shade900 : Colors.grey.shade50,
+                contentPadding: EdgeInsets.all(16),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your budget';
+                }
+                if (double.tryParse(value) == null) {
+                  return 'Please enter a valid number';
+                }
+                return null;
+              },
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: isLoading ? null : onGenerateRoadmap,
+                onPressed: (isLoading ||
+                        !canGenerate ||
+                        dailyUsageCount >= maxDailyRoadmaps)
+                    ? null
+                    : onGenerateRoadmap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: dailyUsageCount >= maxDailyRoadmaps
-                      ? Colors.grey
-                      : theme.colorScheme.primary,
+                  backgroundColor:
+                      (!canGenerate || dailyUsageCount >= maxDailyRoadmaps)
+                          ? Colors.grey
+                          : theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -130,6 +187,19 @@ class InvestmentIdeaInput extends StatelessWidget {
                       ),
               ),
             ),
+            if (!canGenerate &&
+                (ideaController.text.isNotEmpty ||
+                    budgetController.text.isNotEmpty))
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'Please provide both a valid investment idea and budget',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

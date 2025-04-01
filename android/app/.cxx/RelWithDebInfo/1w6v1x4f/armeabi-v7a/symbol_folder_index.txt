@@ -1,0 +1,1 @@
+/home/ogega/Projects/Fintracker/build/app/intermediates/cxx/RelWithDebInfo/1w6v1x4f/obj/armeabi-v7a

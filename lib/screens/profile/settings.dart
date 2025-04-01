@@ -14,11 +14,35 @@ class _SettingsPageState extends State<SettingsPage> {
   bool notificationsEnabled = true;
   bool _isLoading = false;
   final currentUser = FirebaseAuth.instance.currentUser;
+  final TextEditingController _feedbackController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadNotificationSettings();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showCountrySupportDialog();
+    });
+  }
+
+  void _showCountrySupportDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text("Service Availability"),
+        content: Text(
+          "Our app is currently only supported in Kenya. We will upgrade with support for other countries in Q2 of 2025.",
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadNotificationSettings() async {
@@ -42,6 +66,37 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       print('Error loading settings: $e');
+    }
+  }
+
+  Future<void> _submitFeedback() async {
+    if (_feedbackController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter your feedback')),
+      );
+      return;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+
+      await _firestore.collection('user_feedback').add({
+        'userId': currentUser?.uid ?? 'anonymous',
+        'email': currentUser?.email ?? 'anonymous',
+        'feedback': _feedbackController.text,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      _feedbackController.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Thank you for your feedback!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error submitting feedback: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -224,8 +279,17 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () => _logout(),
           ),
         ],
-        backgroundColor: theme.appBarTheme.backgroundColor,
+        backgroundColor: Colors.white, // Light pink gradient
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFFF0F5), Color(0xFFFFF9FB)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Stack(
         children: [
@@ -267,6 +331,24 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 SizedBox(height: 24),
                 _buildSection(
+                  title: "Help & Feedback",
+                  children: [
+                    _buildSettingTile(
+                      icon: Icons.feedback,
+                      title: "Send Feedback",
+                      subtitle: "Share your thoughts and suggestions",
+                      onTap: () => _showFeedbackDialog(),
+                    ),
+                    _buildSettingTile(
+                      icon: Icons.help_outline,
+                      title: "Help Center",
+                      subtitle: "Get help with using the app",
+                      onTap: () => _showHelpDialog(),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24),
+                _buildSection(
                   title: "Danger Zone",
                   children: [
                     _buildSettingTile(
@@ -288,6 +370,102 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: CircularProgressIndicator(),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _showFeedbackDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Send Feedback"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("We'd love to hear your feedback!"),
+            SizedBox(height: 16),
+            TextField(
+              controller: _feedbackController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: "Tell us what you think...",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("CANCEL"),
+          ),
+          TextButton(
+            onPressed: () {
+              _submitFeedback();
+              Navigator.pop(context);
+            },
+            child: Text("SUBMIT"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Help Center"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Frequently Asked Questions",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              _buildHelpItem(
+                question: "How do I change my password?",
+                answer: "Go to Password Manager in Account & Privacy settings.",
+              ),
+              _buildHelpItem(
+                question: "How do I disable notifications?",
+                answer: "Toggle the switch in Notification Settings.",
+              ),
+              _buildHelpItem(
+                question: "Is my data secure?",
+                answer:
+                    "Yes, we use industry-standard encryption to protect your data.",
+              ),
+              Divider(),
+              SizedBox(height: 8),
+              Text("Need more help?",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text("Contact our support team at support@example.com"),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("CLOSE"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHelpItem({required String question, required String answer}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(question, style: TextStyle(fontWeight: FontWeight.w500)),
+          SizedBox(height: 4),
+          Text(answer),
         ],
       ),
     );
@@ -454,6 +632,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showDeleteAccountDialog() {
     final confirmController = TextEditingController();
+    final feedbackController = TextEditingController();
 
     showDialog(
       context: context,
@@ -465,6 +644,23 @@ class _SettingsPageState extends State<SettingsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text(
+              "We're sorry to see you go. Please share your feedback with us:",
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: feedbackController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: "Your feedback (optional)",
+                hintText: "What made you decide to leave?",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 24),
+            Divider(),
+            SizedBox(height: 16),
             Text(
               "Are you sure you want to delete your account? "
               "This action cannot be undone and all your data will be permanently removed.",

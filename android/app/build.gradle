@@ -1,23 +1,22 @@
 plugins {
     id "com.android.application"
-    id 'com.google.gms.google-services' // Firebase plugin
+    id "com.google.gms.google-services" // Firebase plugin
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
     namespace = "com.rax.finflow"
-    compileSdk 34
+    compileSdk 35
 
     ndkVersion = flutter.ndkVersion
 
     defaultConfig {
         applicationId "com.rax.finflow"
         minSdk 23
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0.0"
-        // Add these recommended settings for modern Android apps
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -31,15 +30,25 @@ android {
         jvmTarget = "17"
     }
 
+    signingConfigs {
+        release {
+            def keystoreProperties = new Properties()
+            keystoreProperties.load(new FileInputStream(rootProject.file("key.properties")))
+
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
-            // Add shrinkResources for better APK size optimization
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
-        // Add debug configuration explicitly
         debug {
             debuggable true
             minifyEnabled false
@@ -47,33 +56,31 @@ android {
         }
     }
 
-    // Add recommended packaging options
     packagingOptions {
         resources {
             excludes += [
-                    'META-INF/DEPENDENCIES',
-                    'META-INF/LICENSE',
-                    'META-INF/LICENSE.txt',
-                    'META-INF/license.txt',
-                    'META-INF/NOTICE',
-                    'META-INF/NOTICE.txt',
-                    'META-INF/notice.txt',
-                    'META-INF/*.kotlin_module'
+                'META-INF/DEPENDENCIES',
+                'META-INF/LICENSE',
+                'META-INF/LICENSE.txt',
+                'META-INF/license.txt',
+                'META-INF/NOTICE',
+                'META-INF/NOTICE.txt',
+                'META-INF/notice.txt',
+                'META-INF/*.kotlin_module'
             ]
         }
     }
 }
 
+// Force dependencies to avoid conflicts
 configurations.all {
-    resolutionStrategy {
-        // Update to use eachDependency for more flexible version handling
-        eachDependency { DependencyResolveDetails details ->
-            if (details.requested.group == 'androidx.browser' && details.requested.name == 'browser') {
-                details.useVersion '1.8.0'
-            }
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'androidx.core') {
+            details.useVersion '1.12.0'
         }
-        // Remove failOnVersionConflict as it might be too strict
-        // and prefer more flexible resolution
+        if (details.requested.group == 'androidx.appcompat') {
+            details.useVersion '1.6.1'
+        }
     }
 }
 
@@ -82,16 +89,9 @@ flutter {
 }
 
 dependencies {
-    // Update Firebase BOM to a more recent version
     implementation platform('com.google.firebase:firebase-bom:32.7.1')
     implementation 'com.google.firebase:firebase-auth'
 
-    // Update Kotlin stdlib to match your Kotlin version
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
-
-    // Explicitly declare androidx.browser dependency
-    implementation 'androidx.browser:browser:1.8.0'
-
-    // Add multidex support
     implementation 'androidx.multidex:multidex:2.0.1'
 }

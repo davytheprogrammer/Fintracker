@@ -140,9 +140,9 @@ class SpendingTrendCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegendItem('Income', Colors.pink[400]!),
+                _buildLegendItem('Income', Colors.green),
                 const SizedBox(width: 20),
-                _buildLegendItem('Expenses', Colors.pink[600]!),
+                _buildLegendItem('Expenses', Colors.red),
               ],
             ),
           ],
@@ -158,15 +158,15 @@ class SpendingTrendCard extends StatelessWidget {
             entry.value[isIncome ? 'income' : 'expense'] as double);
       }).toList(),
       isCurved: true,
-      color: isIncome ? Colors.pink[400]! : Colors.pink[600]!,
+      color: isIncome ? Colors.green : Colors.red,
       gradient: isIncome
           ? LinearGradient(
-              colors: [Colors.pink[300]!, Colors.pink[400]!],
+              colors: [Colors.green[300]!, Colors.green[400]!],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             )
           : LinearGradient(
-              colors: [Colors.pink[600]!, Colors.pink[700]!],
+              colors: [Colors.red[600]!, Colors.red[700]!],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -177,7 +177,7 @@ class SpendingTrendCard extends StatelessWidget {
         getDotPainter: (spot, percent, barData, index) {
           return FlDotCirclePainter(
             radius: 4,
-            color: isIncome ? Colors.pink[400]! : Colors.pink[600]!,
+            color: isIncome ? Colors.green : Colors.red,
             strokeWidth: 2,
             strokeColor: Colors.white,
           );
@@ -187,7 +187,9 @@ class SpendingTrendCard extends StatelessWidget {
         show: true,
         gradient: LinearGradient(
           colors: [
-            isIncome ? Colors.pink[300]! : Colors.pink[600]!,
+            isIncome
+                ? Colors.green.withOpacity(0.3)
+                : Colors.red.withOpacity(0.3),
             Colors.white
           ],
           begin: Alignment.topCenter,

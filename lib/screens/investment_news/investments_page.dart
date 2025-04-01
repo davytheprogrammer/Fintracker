@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'daily_usage_manager.dart';
 import 'roadmap_generator.dart';
 import 'error_logger.dart';
@@ -15,6 +14,7 @@ class InvestmentsPage extends StatefulWidget {
 
 class _InvestmentsPageState extends State<InvestmentsPage> {
   final TextEditingController _ideaController = TextEditingController();
+  final TextEditingController _budgetController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -81,6 +81,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
 
     await RoadmapGenerator.generateRoadmap(
       ideaController: _ideaController,
+      budgetController: _budgetController,
       onSuccess: (data) async {
         setState(() {
           _roadmapData = data;
@@ -124,6 +125,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
 
     await RoadmapGenerator.fallbackMarkdownGeneration(
       ideaController: _ideaController,
+      budgetController: _budgetController,
       onSuccess: (fallbackData) async {
         setState(() {
           _roadmapData = fallbackData;
@@ -145,13 +147,13 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Daily Limit Reached'),
-        content: Text(
-            'You\'ve reached your daily limit of 3 roadmaps. Try again tomorrow.'),
+        title: const Text('Daily Limit Reached'),
+        content: const Text(
+            'You\'ve reached your daily limit of $MAX_DAILY_ROADMAPS roadmaps. Try again tomorrow.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
+            child: const Text('OK'),
           )
         ],
       ),
@@ -162,12 +164,12 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Error'),
+        title: const Text('Error'),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
+            child: const Text('OK'),
           )
         ],
       ),
@@ -178,6 +180,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
     if (_roadmapData == null) return;
 
     await PDFGenerator.exportRoadmapToPDF(
+      context: context, // Add this required parameter
       roadmapData: _roadmapData!,
       ideaController: _ideaController,
       onError: (e) {
@@ -188,8 +191,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
   }
 
   Future<void> _downloadMarkdownFile() async {
-    if (_roadmapData == null || !_roadmapData!.containsKey('markdown_content'))
+    if (_roadmapData == null ||
+        !_roadmapData!.containsKey('markdown_content')) {
       return;
+    }
 
     await PDFGenerator.downloadMarkdownFile(
       roadmapData: _roadmapData!,
@@ -218,12 +223,12 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
               children: [
                 if (_roadmapData!.containsKey('markdown_content'))
                   IconButton(
-                    icon: Icon(Icons.description),
+                    icon: const Icon(Icons.description),
                     tooltip: 'Download Markdown',
                     onPressed: _downloadMarkdownFile,
                   ),
                 IconButton(
-                  icon: Icon(Icons.picture_as_pdf),
+                  icon: const Icon(Icons.picture_as_pdf),
                   tooltip: 'Export to PDF',
                   onPressed: _exportRoadmapToPDF,
                 ),
@@ -253,9 +258,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
                   isDarkMode: isDarkMode,
                   theme: theme,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 InvestmentIdeaInput(
                   ideaController: _ideaController,
+                  budgetController: _budgetController,
                   isLoading: _isLoading,
                   dailyUsageCount: _dailyUsageCount,
                   maxDailyRoadmaps: MAX_DAILY_ROADMAPS,
@@ -263,10 +269,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
                   isDarkMode: isDarkMode,
                   theme: theme,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (_errorMessage != null)
                   ErrorMessage(message: _errorMessage!),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (_roadmapData != null) ...[
                   if (_roadmapData!.containsKey('markdown_content'))
                     MarkdownSection(roadmapData: _roadmapData!),
@@ -287,6 +293,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
   @override
   void dispose() {
     _ideaController.dispose();
+    _budgetController.dispose();
     super.dispose();
   }
 }
