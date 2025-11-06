@@ -124,7 +124,9 @@ class AIInsightCard extends StatelessWidget {
                     styleSheet: MarkdownStyleSheet(
                       p: TextStyle(
                         fontSize: 15,
-                        color: isDark ? const Color(0xFFB8B9BE) : const Color(0xFF374151),
+                        color: isDark
+                            ? const Color(0xFFB8B9BE)
+                            : const Color(0xFF374151),
                         height: 1.6,
                         letterSpacing: 0.3,
                       ),

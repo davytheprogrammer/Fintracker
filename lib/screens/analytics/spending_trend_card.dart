@@ -11,31 +11,108 @@ class SpendingTrendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: Colors.white,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF6366F1).withOpacity(0.1),
+            const Color(0xFF8B5CF6).withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFF6366F1).withOpacity(0.2),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6366F1).withOpacity(0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Monthly Spending Trend',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.pink[800],
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF6366F1).withOpacity(0.2),
+                        const Color(0xFF8B5CF6).withOpacity(0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF6366F1).withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.trending_up_rounded,
+                    color: Color(0xFF6366F1),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                const Text(
+                  'Monthly Spending Trend',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1A1A1A),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              height: 1,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF6366F1).withOpacity(0.3),
+                    Colors.transparent,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             monthlyData.isEmpty
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: Text(
-                        'No spending trend data available',
-                        style: TextStyle(color: Colors.pink[300]),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.trending_up_rounded,
+                            size: 48,
+                            color: const Color(0xFF6366F1).withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No spending trend data available',
+                            style: TextStyle(
+                              color: isDark ? const Color(0xFFB8B9BE) : const Color(0xFF6B7280),
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   )
@@ -48,13 +125,13 @@ class SpendingTrendCard extends StatelessWidget {
                           drawVerticalLine: true,
                           getDrawingHorizontalLine: (value) {
                             return FlLine(
-                              color: Colors.pink[50]!,
+                              color: const Color(0xFF6366F1).withOpacity(0.1),
                               strokeWidth: 1,
                             );
                           },
                           getDrawingVerticalLine: (value) {
                             return FlLine(
-                              color: Colors.pink[50]!,
+                              color: const Color(0xFF6366F1).withOpacity(0.1),
                               strokeWidth: 1,
                             );
                           },
@@ -63,15 +140,16 @@ class SpendingTrendCard extends StatelessWidget {
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
-                              reservedSize: 40,
+                              reservedSize: 50,
                               getTitlesWidget: (value, meta) {
                                 return Padding(
-                                  padding: const EdgeInsets.only(right: 4.0),
+                                  padding: const EdgeInsets.only(right: 8.0),
                                   child: Text(
                                     NumberFormat.compact().format(value),
                                     style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.pink[600],
+                                      fontSize: 11,
+                                      color: const Color(0xFF6366F1).withOpacity(0.7),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 );
@@ -92,8 +170,9 @@ class SpendingTrendCard extends StatelessWidget {
                                         .toString()
                                         .substring(0, 3),
                                     style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.pink[600],
+                                      fontSize: 11,
+                                      color: const Color(0xFF6366F1).withOpacity(0.7),
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 );
@@ -111,7 +190,7 @@ class SpendingTrendCard extends StatelessWidget {
                         borderData: FlBorderData(
                           show: true,
                           border: Border.all(
-                            color: Colors.pink[100]!,
+                            color: const Color(0xFF6366F1).withOpacity(0.2),
                             width: 1,
                           ),
                         ),
@@ -137,13 +216,13 @@ class SpendingTrendCard extends StatelessWidget {
                       ),
                     ),
                   ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildLegendItem('Income', Colors.green),
-                const SizedBox(width: 20),
-                _buildLegendItem('Expenses', Colors.red),
+                _buildLegendItem('Income', const Color(0xFF10B981)),
+                const SizedBox(width: 16),
+                _buildLegendItem('Expenses', const Color(0xFFEF4444)),
               ],
             ),
           ],
@@ -205,19 +284,46 @@ class SpendingTrendCard extends StatelessWidget {
 
   Widget _buildLegendItem(String label, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        gradient: LinearGradient(
+          colors: [
+            color.withOpacity(0.1),
+            color.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 8),
           Text(
@@ -225,7 +331,8 @@ class SpendingTrendCard extends StatelessWidget {
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.w600,
-              fontSize: 12,
+              fontSize: 13,
+              letterSpacing: -0.2,
             ),
           ),
         ],

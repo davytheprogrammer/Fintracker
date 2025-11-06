@@ -304,11 +304,11 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     String categoryBreakdown = topCategories.isEmpty
         ? "No category data available."
         : topCategories
-              .map(
-                (entry) =>
-                    "${entry.key}: ${_formatCurrency(entry.value)} (${(_getPercentage(entry.value, _totalExpenses)).toStringAsFixed(1)}%)",
-              )
-              .join(", ");
+            .map(
+              (entry) =>
+                  "${entry.key}: ${_formatCurrency(entry.value)} (${(_getPercentage(entry.value, _totalExpenses)).toStringAsFixed(1)}%)",
+            )
+            .join(", ");
 
     return '''
     Financial Analysis Prompt:
