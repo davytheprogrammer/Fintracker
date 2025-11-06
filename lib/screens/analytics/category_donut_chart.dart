@@ -121,7 +121,9 @@ class CategoryDonutChart extends StatelessWidget {
                           Text(
                             'No expense data available',
                             style: TextStyle(
-                              color: isDark ? const Color(0xFFB8B9BE) : const Color(0xFF6B7280),
+                              color: isDark
+                                  ? const Color(0xFFB8B9BE)
+                                  : const Color(0xFF6B7280),
                               fontSize: 16,
                             ),
                           ),
@@ -259,7 +261,8 @@ class CategoryDonutChart extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: categoryColors[index % categoryColors.length].withOpacity(0.3),
+                            color: categoryColors[index % categoryColors.length]
+                                .withOpacity(0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -283,7 +286,8 @@ class CategoryDonutChart extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFF6366F1).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),

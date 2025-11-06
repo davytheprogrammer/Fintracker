@@ -7,7 +7,7 @@ class SpendingTrendCard extends StatelessWidget {
   final List<Map<String, dynamic>> monthlyData;
 
   const SpendingTrendCard({Key? key, required this.monthlyData})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +108,9 @@ class SpendingTrendCard extends StatelessWidget {
                           Text(
                             'No spending trend data available',
                             style: TextStyle(
-                              color: isDark ? const Color(0xFFB8B9BE) : const Color(0xFF6B7280),
+                              color: isDark
+                                  ? const Color(0xFFB8B9BE)
+                                  : const Color(0xFF6B7280),
                               fontSize: 16,
                             ),
                           ),
@@ -148,7 +150,8 @@ class SpendingTrendCard extends StatelessWidget {
                                     NumberFormat.compact().format(value),
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: const Color(0xFF6366F1).withOpacity(0.7),
+                                      color: const Color(0xFF6366F1)
+                                          .withOpacity(0.7),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -171,7 +174,8 @@ class SpendingTrendCard extends StatelessWidget {
                                         .substring(0, 3),
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: const Color(0xFF6366F1).withOpacity(0.7),
+                                      color: const Color(0xFF6366F1)
+                                          .withOpacity(0.7),
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -197,8 +201,7 @@ class SpendingTrendCard extends StatelessWidget {
                         minX: 0,
                         maxX: (monthlyData.length - 1).toDouble(),
                         minY: 0,
-                        maxY:
-                            monthlyData.fold(
+                        maxY: monthlyData.fold(
                               0.0,
                               (max, item) => math.max(
                                 max,
