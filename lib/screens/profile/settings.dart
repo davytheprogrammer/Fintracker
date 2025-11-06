@@ -54,8 +54,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
       // Also load from Firestore if available
       if (currentUser != null) {
-        final userDoc =
-            await _firestore.collection('users').doc(currentUser!.uid).get();
+        final userDoc = await _firestore
+            .collection('users')
+            .doc(currentUser!.uid)
+            .get();
 
         if (userDoc.exists) {
           setState(() {
@@ -71,9 +73,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _submitFeedback() async {
     if (_feedbackController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter your feedback')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please enter your feedback')));
       return;
     }
 
@@ -88,13 +90,13 @@ class _SettingsPageState extends State<SettingsPage> {
       });
 
       _feedbackController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Thank you for your feedback!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Thank you for your feedback!')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error submitting feedback: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error submitting feedback: $e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -128,7 +130,9 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _updatePassword(
-      String currentPassword, String newPassword) async {
+    String currentPassword,
+    String newPassword,
+  ) async {
     try {
       setState(() => _isLoading = true);
 
@@ -143,9 +147,9 @@ class _SettingsPageState extends State<SettingsPage> {
       await currentUser!.updatePassword(newPassword);
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Password updated successfully')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Password updated successfully')));
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'An error occurred';
       if (e.code == 'wrong-password') {
@@ -153,9 +157,9 @@ class _SettingsPageState extends State<SettingsPage> {
       } else if (e.code == 'weak-password') {
         errorMessage = 'New password is too weak';
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -163,9 +167,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _deleteAccount(String confirmText) async {
     if (confirmText != 'DELETE') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please type DELETE to confirm')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please type DELETE to confirm')));
       return;
     }
 
@@ -199,9 +203,9 @@ class _SettingsPageState extends State<SettingsPage> {
       await _auth.signOut();
       Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error logging out: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error logging out: $e')));
     }
   }
 
@@ -245,9 +249,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 // Retry delete operation
                 _deleteAccount('DELETE');
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Invalid password')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Invalid password')));
               }
             },
           ),
@@ -274,10 +278,7 @@ class _SettingsPageState extends State<SettingsPage> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () => _logout(),
-          ),
+          IconButton(icon: Icon(Icons.logout), onPressed: () => _logout()),
         ],
         backgroundColor: Colors.white, // Light pink gradient
         elevation: 0,
@@ -366,9 +367,7 @@ class _SettingsPageState extends State<SettingsPage> {
           if (_isLoading)
             Container(
               color: Colors.black54,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -422,8 +421,10 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Frequently Asked Questions",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                "Frequently Asked Questions",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               _buildHelpItem(
                 question: "How do I change my password?",
@@ -440,8 +441,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               Divider(),
               SizedBox(height: 8),
-              Text("Need more help?",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                "Need more help?",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               SizedBox(height: 8),
               Text("Contact our support team at support@example.com"),
             ],
@@ -481,10 +484,12 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage:
-                  user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
-              child:
-                  user?.photoURL == null ? Icon(Icons.person, size: 30) : null,
+              backgroundImage: user?.photoURL != null
+                  ? NetworkImage(user!.photoURL!)
+                  : null,
+              child: user?.photoURL == null
+                  ? Icon(Icons.person, size: 30)
+                  : null,
             ),
             SizedBox(width: 16),
             Expanded(
@@ -521,9 +526,9 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
         ...children,
@@ -544,9 +549,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Card(
       margin: EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Container(
@@ -555,10 +558,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: (iconColor ?? theme.colorScheme.primary).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: iconColor ?? theme.colorScheme.primary,
-          ),
+          child: Icon(icon, color: iconColor ?? theme.colorScheme.primary),
         ),
         title: Text(
           title,
@@ -572,7 +572,8 @@ class _SettingsPageState extends State<SettingsPage> {
             color: theme.textTheme.bodySmall?.color,
           ),
         ),
-        trailing: trailing ??
+        trailing:
+            trailing ??
             Icon(
               Icons.arrow_forward_ios,
               size: 16,
@@ -637,10 +638,7 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          "Delete Account",
-          style: TextStyle(color: Colors.red),
-        ),
+        title: Text("Delete Account", style: TextStyle(color: Colors.red)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -681,10 +679,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text(
-              "DELETE ACCOUNT",
-              style: TextStyle(color: Colors.red),
-            ),
+            child: Text("DELETE ACCOUNT", style: TextStyle(color: Colors.red)),
             onPressed: () => _deleteAccount(confirmController.text),
           ),
         ],

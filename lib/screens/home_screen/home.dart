@@ -292,31 +292,31 @@ class _HomePageState extends State<HomePage>
     final user = _auth.currentUser;
 
     return PreferredSize(
-      preferredSize: const Size.fromHeight(80.0),
+      preferredSize: const Size.fromHeight(90.0),
       child: Container(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.gradientStart,
-              AppColors.gradientEnd,
+              const Color(0xFF6C63FF).withOpacity(0.95),
+              const Color(0xFF8B85FF).withOpacity(0.95),
             ],
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              offset: const Offset(0, 2),
-              blurRadius: 6.0,
+              color: const Color(0xFF6C63FF).withOpacity(0.3),
+              offset: const Offset(0, 4),
+              blurRadius: 12.0,
             ),
           ],
         ),
         child: SafeArea(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 12.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildAppBarTitle(user),
                 _buildAppBarActions(user),
@@ -329,6 +329,71 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildAppBarTitle(User? user) {
+    return Expanded(
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.25),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(10.0),
+            child: const Icon(
+              Icons.account_balance_wallet_rounded,
+              color: Colors.white,
+              size: 26,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'FinSpense',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Welcome back${user?.displayName != null ? ', ${user!.displayName}' : ''}',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.2,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBarActions(User? user) {
     return Row(
       children: [
         Container(
@@ -336,54 +401,20 @@ class _HomePageState extends State<HomePage>
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.all(8.0),
-          child: const Icon(
-            Icons.account_balance_wallet_rounded,
-            color: AppColors.primaryPink,
-            size: 28,
+          child: IconButton(
+            icon: const Icon(
+              Icons.notifications_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+            onPressed: () {
+              // TODO: Implement notifications
+              HapticFeedback.lightImpact();
+              debugPrint('Notifications pressed');
+            },
           ),
         ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'FinSpense',
-              style: TextStyle(
-                color: AppColors.primaryPink,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              'Welcome back${user != null ? ', ${user.displayName ?? 'User'}' : ''}',
-              style: TextStyle(
-                color: AppColors.primaryPink.withOpacity(0.8),
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAppBarActions(User? user) {
-    return Row(
-      children: [
-        IconButton(
-          icon: const Icon(
-            Icons.notifications_outlined,
-            color: AppColors.primaryPink,
-            size: 28,
-          ),
-          onPressed: () {
-            // TODO: Implement notifications
-            debugPrint('Notifications pressed');
-          },
-        ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         _buildProfileAvatar(user),
       ],
     );
@@ -391,15 +422,19 @@ class _HomePageState extends State<HomePage>
 
   Widget _buildProfileAvatar(User? user) {
     return Container(
-      width: 40,
-      height: 40,
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.4),
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryPink.withOpacity(0.2),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -411,15 +446,17 @@ class _HomePageState extends State<HomePage>
                 user!.photoURL!,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.person,
-                    color: AppColors.primaryPink,
+                  return const Icon(
+                    Icons.person_rounded,
+                    color: Color(0xFF6C63FF),
+                    size: 24,
                   );
                 },
               )
-            : Icon(
-                Icons.person,
-                color: AppColors.primaryPink,
+            : const Icon(
+                Icons.person_rounded,
+                color: Color(0xFF6C63FF),
+                size: 24,
               ),
       ),
     );

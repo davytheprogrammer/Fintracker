@@ -31,11 +31,11 @@ class _RegisterState extends State<Register> {
     if (_formKey.currentState!.validate()) {
       setState(() => _loading = true);
       try {
-        final UserCredential result =
-            await _auth.createUserWithEmailAndPassword(
-          email: _email.trim(),
-          password: _password,
-        );
+        final UserCredential result = await _auth
+            .createUserWithEmailAndPassword(
+              email: _email.trim(),
+              password: _password,
+            );
 
         if (result.user != null) {
           await _firestore.collection('users').doc(result.user!.uid).set({
@@ -90,7 +90,7 @@ class _RegisterState extends State<Register> {
                             color: Colors.pink.shade100,
                             blurRadius: 15,
                             offset: const Offset(0, 8),
-                          )
+                          ),
                         ],
                       ),
                       child: const Icon(
@@ -107,9 +107,7 @@ class _RegisterState extends State<Register> {
                     children: [
                       Text(
                         'Create Account',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
+                        style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -120,9 +118,9 @@ class _RegisterState extends State<Register> {
                       Text(
                         'Please fill in the details to get started',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey[600],
-                              letterSpacing: 0.3,
-                            ),
+                          color: Colors.grey[600],
+                          letterSpacing: 0.3,
+                        ),
                       ),
                     ],
                   ),
@@ -133,8 +131,10 @@ class _RegisterState extends State<Register> {
                     decoration: InputDecoration(
                       labelText: 'Nickname',
                       labelStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon:
-                          Icon(Icons.person_outline, color: Colors.grey[600]),
+                      prefixIcon: Icon(
+                        Icons.person_outline,
+                        color: Colors.grey[600],
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -143,11 +143,15 @@ class _RegisterState extends State<Register> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.pink.shade200, width: 1.5),
+                        borderSide: BorderSide(
+                          color: Colors.pink.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 16),
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                     validator: (val) =>
                         val?.isEmpty ?? true ? 'Please enter a nickname' : null,
@@ -160,8 +164,10 @@ class _RegisterState extends State<Register> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon:
-                          Icon(Icons.email_outlined, color: Colors.grey[600]),
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: Colors.grey[600],
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -170,18 +176,23 @@ class _RegisterState extends State<Register> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.pink.shade200, width: 1.5),
+                        borderSide: BorderSide(
+                          color: Colors.pink.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 16),
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
                       if (val?.isEmpty ?? true)
                         return 'Please enter your email';
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(val!)) {
+                      if (!RegExp(
+                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(val!)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -195,8 +206,10 @@ class _RegisterState extends State<Register> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon:
-                          Icon(Icons.lock_outline, color: Colors.grey[600]),
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: Colors.grey[600],
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -205,7 +218,8 @@ class _RegisterState extends State<Register> {
                           color: Colors.grey[600],
                         ),
                         onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -215,11 +229,15 @@ class _RegisterState extends State<Register> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.pink.shade200, width: 1.5),
+                        borderSide: BorderSide(
+                          color: Colors.pink.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 16),
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                     obscureText: _obscurePassword,
                     validator: (val) => val?.isEmpty ?? true
@@ -234,8 +252,10 @@ class _RegisterState extends State<Register> {
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       labelStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon:
-                          Icon(Icons.lock_outline, color: Colors.grey[600]),
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: Colors.grey[600],
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureConfirmPassword
@@ -243,8 +263,10 @@ class _RegisterState extends State<Register> {
                               : Icons.visibility_off,
                           color: Colors.grey[600],
                         ),
-                        onPressed: () => setState(() =>
-                            _obscureConfirmPassword = !_obscureConfirmPassword),
+                        onPressed: () => setState(
+                          () => _obscureConfirmPassword =
+                              !_obscureConfirmPassword,
+                        ),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -254,11 +276,15 @@ class _RegisterState extends State<Register> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.pink.shade200, width: 1.5),
+                        borderSide: BorderSide(
+                          color: Colors.pink.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 16),
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                     obscureText: _obscureConfirmPassword,
                     validator: (val) => val?.isEmpty ?? true
@@ -278,10 +304,7 @@ class _RegisterState extends State<Register> {
                       ),
                       child: Text(
                         _error,
-                        style: TextStyle(
-                          color: Colors.pink[700],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.pink[700], fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -296,13 +319,10 @@ class _RegisterState extends State<Register> {
                           color: Colors.pink.shade100,
                           blurRadius: 10,
                           offset: const Offset(0, 5),
-                        )
+                        ),
                       ],
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.pink.shade300,
-                          Colors.pink.shade200,
-                        ],
+                        colors: [Colors.pink.shade300, Colors.pink.shade200],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -342,10 +362,7 @@ class _RegisterState extends State<Register> {
                   Row(
                     children: [
                       Expanded(
-                        child: Divider(
-                          color: Colors.grey[300],
-                          thickness: 1,
-                        ),
+                        child: Divider(color: Colors.grey[300], thickness: 1),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -358,10 +375,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ),
                       Expanded(
-                        child: Divider(
-                          color: Colors.grey[300],
-                          thickness: 1,
-                        ),
+                        child: Divider(color: Colors.grey[300], thickness: 1),
                       ),
                     ],
                   ),
@@ -373,10 +387,7 @@ class _RegisterState extends State<Register> {
                     children: [
                       Text(
                         'Already have an account? ',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       GestureDetector(
                         onTap: () => widget.toggleView(),

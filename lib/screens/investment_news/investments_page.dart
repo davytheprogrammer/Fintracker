@@ -56,9 +56,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         duration: Duration(seconds: isError ? 4 : 2),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         action: isError
             ? SnackBarAction(
                 label: 'DISMISS',
@@ -112,14 +110,18 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
 
   bool _validateInputs() {
     if (_ideaController.text.length < 15) {
-      _showSnackBar('Investment idea must be at least 15 characters long',
-          isError: true);
+      _showSnackBar(
+        'Investment idea must be at least 15 characters long',
+        isError: true,
+      );
       return false;
     }
 
     if (_ideaController.text.split(' ').length < 10) {
-      _showSnackBar('Investment idea must contain at least 10 words',
-          isError: true);
+      _showSnackBar(
+        'Investment idea must contain at least 10 words',
+        isError: true,
+      );
       return false;
     }
 
@@ -203,8 +205,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         _isLoading = false;
         _errorMessage = 'Failed to generate roadmap after multiple attempts.';
       });
-      _showSnackBar('Failed to generate roadmap after multiple attempts',
-          isError: true);
+      _showSnackBar(
+        'Failed to generate roadmap after multiple attempts',
+        isError: true,
+      );
       return;
     }
 
@@ -229,8 +233,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
             _errorMessage =
                 'Failed to generate roadmap. Please try again later.';
           });
-          _showSnackBar('All attempts to generate roadmap failed',
-              isError: true);
+          _showSnackBar(
+            'All attempts to generate roadmap failed',
+            isError: true,
+          );
         },
       );
     } catch (e) {
@@ -253,8 +259,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         ideaController: _ideaController,
         onError: (e) {
           logError('PDF generation error', e);
-          _showSnackBar('Failed to generate PDF: ${e.toString()}',
-              isError: true);
+          _showSnackBar(
+            'Failed to generate PDF: ${e.toString()}',
+            isError: true,
+          );
         },
       );
     } catch (e) {
@@ -275,8 +283,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         roadmapData: _roadmapData!,
         onError: (e) {
           logError('Error downloading markdown file', e);
-          _showSnackBar('Failed to download file: ${e.toString()}',
-              isError: true);
+          _showSnackBar(
+            'Failed to download file: ${e.toString()}',
+            isError: true,
+          );
         },
       );
     } catch (e) {
@@ -292,8 +302,10 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Investment Roadmap Generator',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Investment Roadmap Generator',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: theme.colorScheme.onPrimary,

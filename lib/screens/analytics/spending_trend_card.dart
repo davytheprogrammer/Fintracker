@@ -6,18 +6,14 @@ import 'dart:math' as math;
 class SpendingTrendCard extends StatelessWidget {
   final List<Map<String, dynamic>> monthlyData;
 
-  const SpendingTrendCard({
-    Key? key,
-    required this.monthlyData,
-  }) : super(key: key);
+  const SpendingTrendCard({Key? key, required this.monthlyData})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -122,12 +118,17 @@ class SpendingTrendCard extends StatelessWidget {
                         minX: 0,
                         maxX: (monthlyData.length - 1).toDouble(),
                         minY: 0,
-                        maxY: monthlyData.fold(
-                                0.0,
-                                (max, item) => math.max(
-                                    max,
-                                    math.max(item['income'] as double,
-                                        item['expense'] as double))) *
+                        maxY:
+                            monthlyData.fold(
+                              0.0,
+                              (max, item) => math.max(
+                                max,
+                                math.max(
+                                  item['income'] as double,
+                                  item['expense'] as double,
+                                ),
+                              ),
+                            ) *
                             1.2,
                         lineBarsData: [
                           _buildLineChartBarData(true), // Income line
@@ -154,8 +155,10 @@ class SpendingTrendCard extends StatelessWidget {
   LineChartBarData _buildLineChartBarData(bool isIncome) {
     return LineChartBarData(
       spots: monthlyData.asMap().entries.map((entry) {
-        return FlSpot(entry.key.toDouble(),
-            entry.value[isIncome ? 'income' : 'expense'] as double);
+        return FlSpot(
+          entry.key.toDouble(),
+          entry.value[isIncome ? 'income' : 'expense'] as double,
+        );
       }).toList(),
       isCurved: true,
       color: isIncome ? Colors.green : Colors.red,
@@ -190,7 +193,7 @@ class SpendingTrendCard extends StatelessWidget {
             isIncome
                 ? Colors.green.withOpacity(0.3)
                 : Colors.red.withOpacity(0.3),
-            Colors.white
+            Colors.white,
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -214,10 +217,7 @@ class SpendingTrendCard extends StatelessWidget {
           Container(
             width: 12,
             height: 12,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
           Text(

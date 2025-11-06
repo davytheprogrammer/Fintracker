@@ -50,22 +50,18 @@ class _TransactionFABState extends State<TransactionFAB>
       reverseCurve: Curves.easeInOutCubicEmphasized.flipped,
     );
 
-    _rotateAnimation = Tween<double>(
-      begin: 0,
-      end: 0.125,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-      reverseCurve: Curves.easeInBack,
-    ));
+    _rotateAnimation = Tween<double>(begin: 0, end: 0.125).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+        reverseCurve: Curves.easeInBack,
+      ),
+    );
 
     _blurAnimation = Tween<double>(
       begin: 0,
       end: 3,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   Future<void> _handleFABPressed() async {
@@ -120,9 +116,7 @@ class _TransactionFABState extends State<TransactionFAB>
                 ),
                 child: GestureDetector(
                   onTap: _handleFABPressed,
-                  child: Container(
-                    color: Colors.black.withOpacity(0.1),
-                  ),
+                  child: Container(color: Colors.black.withOpacity(0.1)),
                 ),
               );
             },

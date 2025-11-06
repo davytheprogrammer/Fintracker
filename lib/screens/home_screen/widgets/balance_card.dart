@@ -137,8 +137,8 @@ class _BalanceCardState extends State<BalanceCard>
     return BoxDecoration(
       gradient: const LinearGradient(
         colors: [
-          Color(0xFFFCE4EC),
-          Color(0xFFF8BBD0),
+          Color(0xFF6C63FF),
+          Color(0xFF8B85FF),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -146,14 +146,14 @@ class _BalanceCardState extends State<BalanceCard>
       borderRadius: BorderRadius.circular(_kBorderRadius),
       boxShadow: [
         BoxShadow(
-          color: const Color(0xFFF8BBD0).withOpacity(0.5),
-          blurRadius: 20,
-          offset: const Offset(0, 10),
-          spreadRadius: _isHovering ? 5 : 0,
+          color: const Color(0xFF6C63FF).withOpacity(0.4),
+          blurRadius: 24,
+          offset: const Offset(0, 12),
+          spreadRadius: _isHovering ? 3 : 0,
         ),
       ],
       border: Border.all(
-        color: Colors.white.withOpacity(0.3),
+        color: Colors.white.withOpacity(0.2),
         width: 1.5,
       ),
     );
@@ -179,22 +179,30 @@ class _BalanceCardState extends State<BalanceCard>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
+        Text(
           'Total Balance',
           style: TextStyle(
-            color: Color(0xFF424242),
-            fontSize: 16,
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 15,
             fontWeight: FontWeight.w500,
-            letterSpacing: 0.5,
+            letterSpacing: 0.8,
           ),
         ),
         if (widget.currencyCode != null)
-          Text(
-            widget.currencyCode!,
-            style: const TextStyle(
-              color: Color(0xFF757575),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              widget.currencyCode!,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.95),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
       ],
@@ -209,15 +217,15 @@ class _BalanceCardState extends State<BalanceCard>
     return Text(
       widget.formatCurrency(widget.totalBalance),
       style: const TextStyle(
-        color: Color(0xFF424242),
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 0.5,
+        color: Colors.white,
+        fontSize: 36,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.5,
         shadows: [
           Shadow(
-            color: Colors.black12,
-            blurRadius: 5,
-            offset: Offset(0, 2),
+            color: Colors.black26,
+            blurRadius: 8,
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -245,9 +253,9 @@ class _BalanceCardState extends State<BalanceCard>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.pink.withOpacity(0.05),
-            Colors.pink.withOpacity(0.2),
-            Colors.pink.withOpacity(0.05),
+            Colors.white.withOpacity(0.0),
+            Colors.white.withOpacity(0.3),
+            Colors.white.withOpacity(0.0),
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -290,43 +298,45 @@ class _BalanceCardState extends State<BalanceCard>
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.white.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: iconColor.withOpacity(0.1),
+                color: Colors.black.withOpacity(0.1),
                 blurRadius: 4,
-                offset: const Offset(0, 1),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Icon(
             icon,
-            color: iconColor,
-            size: 14,
+            color: Colors.white,
+            size: 16,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: Color(0xFF616161),
-                fontSize: 10,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 11,
                 fontWeight: FontWeight.w500,
+                letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               amount,
               style: const TextStyle(
-                color: Color(0xFF424242),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
               ),
             ),
           ],

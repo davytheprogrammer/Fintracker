@@ -23,9 +23,9 @@ class RecentTransactions extends StatelessWidget {
     }
 
     // Sort transactions by date (newest first)
-    final sortedTransactions = List<Map<String, dynamic>>.from(transactions)
-      ..sort(
-          (a, b) => _getTransactionDate(b).compareTo(_getTransactionDate(a)));
+    final sortedTransactions = List<Map<String, dynamic>>.from(
+      transactions,
+    )..sort((a, b) => _getTransactionDate(b).compareTo(_getTransactionDate(a)));
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -50,10 +50,7 @@ class RecentTransactions extends StatelessWidget {
       children: [
         const Text(
           'Recent Transactions',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         Text(
           'Total: $totalCount',
@@ -89,7 +86,9 @@ class RecentTransactions extends StatelessWidget {
   }
 
   Widget _buildSeeMoreButton(
-      BuildContext context, List<Map<String, dynamic>> transactions) {
+    BuildContext context,
+    List<Map<String, dynamic>> transactions,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: TextButton(
@@ -124,7 +123,9 @@ class RecentTransactions extends StatelessWidget {
   }
 
   void _showAllTransactions(
-      BuildContext context, List<Map<String, dynamic>> transactions) {
+    BuildContext context,
+    List<Map<String, dynamic>> transactions,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -186,10 +187,7 @@ class RecentTransactions extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('MMM d, y').format(date),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),
@@ -242,11 +240,13 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
 
   List<Map<String, dynamic>> get filteredTransactions {
     return widget.transactions.where((tx) {
-      final matchesSearch = (tx['description'] as String?)
-              ?.toLowerCase()
-              .contains(_searchQuery.toLowerCase()) ??
+      final matchesSearch =
+          (tx['description'] as String?)?.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          ) ??
           false;
-      final matchesFilter = _selectedFilter == 'all' ||
+      final matchesFilter =
+          _selectedFilter == 'all' ||
           (tx['type'] as String?)?.toLowerCase() == _selectedFilter;
       return matchesSearch && matchesFilter;
     }).toList();
@@ -254,10 +254,11 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
 
   @override
   Widget build(BuildContext context) {
-    final totalPages =
-        (filteredTransactions.length / kTransactionsPerPage).ceil();
-    final displayedTransactions =
-        filteredTransactions.skip(_currentPage * kTransactionsPerPage);
+    final totalPages = (filteredTransactions.length / kTransactionsPerPage)
+        .ceil();
+    final displayedTransactions = filteredTransactions.skip(
+      _currentPage * kTransactionsPerPage,
+    );
 
     return DraggableScrollableSheet(
       initialChildSize: 0.9,
@@ -278,7 +279,9 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
                   : ListView(
                       controller: controller,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       children: [
                         ...displayedTransactions
                             .take(kTransactionsPerPage)
@@ -300,10 +303,7 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5),
         ],
       ),
       child: Row(
@@ -311,10 +311,7 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
         children: [
           const Text(
             'All Transactions',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           IconButton(
             icon: const Icon(Icons.close),
@@ -381,14 +378,13 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
         children: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed:
-                _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+            onPressed: _currentPage > 0
+                ? () => setState(() => _currentPage--)
+                : null,
           ),
           Text(
             'Page ${_currentPage + 1} of $totalPages',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
@@ -406,11 +402,7 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 64,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             _searchQuery.isEmpty
@@ -473,10 +465,7 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('MMM d, y').format(date),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),

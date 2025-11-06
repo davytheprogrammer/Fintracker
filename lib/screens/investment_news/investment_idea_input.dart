@@ -34,7 +34,8 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
   }
 
   void _validateIdea() {
-    final isValid = widget.ideaController.text.length >= 15 &&
+    final isValid =
+        widget.ideaController.text.length >= 15 &&
         widget.ideaController.text.split(' ').length >= 10;
     if (isValid != _isIdeaValid) {
       setState(() => _isIdeaValid = isValid);
@@ -42,7 +43,8 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
   }
 
   void _validateBudget() {
-    final isValid = widget.budgetController.text.isNotEmpty &&
+    final isValid =
+        widget.budgetController.text.isNotEmpty &&
         double.tryParse(widget.budgetController.text) != null;
     if (isValid != _isBudgetValid) {
       setState(() => _isBudgetValid = isValid);
@@ -91,10 +93,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
           children: [
             Text(
               'Describe Your Investment Idea',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             SizedBox(height: 8),
             TextFormField(
@@ -154,10 +153,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
             SizedBox(height: 16),
             Text(
               'Input Budget (\\KES)',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 8),
             TextFormField(
@@ -223,9 +219,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                           SizedBox(width: 12),
                           Text(
                             'Generating Roadmap...',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
                       )

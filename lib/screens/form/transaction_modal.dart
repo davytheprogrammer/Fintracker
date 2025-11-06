@@ -13,10 +13,8 @@ const kBackgroundColor = Color(0xFFFAFAFA); // Almost white background
 class TransactionFormPage extends StatefulWidget {
   final bool isIncome;
 
-  const TransactionFormPage({
-    Key? key,
-    required this.isIncome,
-  }) : super(key: key);
+  const TransactionFormPage({Key? key, required this.isIncome})
+    : super(key: key);
 
   @override
   _TransactionFormPageState createState() => _TransactionFormPageState();
@@ -93,8 +91,9 @@ class _TransactionFormPageState extends State<TransactionFormPage>
             'createdAt': FieldValue.serverTimestamp(),
           });
 
-          DocumentReference userRef =
-              _firestore.collection('users').doc(user.uid);
+          DocumentReference userRef = _firestore
+              .collection('users')
+              .doc(user.uid);
 
           await _firestore.runTransaction((transaction) async {
             DocumentSnapshot userDoc = await transaction.get(userRef);
@@ -209,10 +208,7 @@ class _TransactionFormPageState extends State<TransactionFormPage>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              kSecondaryColor.withOpacity(0.3),
-              kBackgroundColor,
-            ],
+            colors: [kSecondaryColor.withOpacity(0.3), kBackgroundColor],
           ),
         ),
         child: SingleChildScrollView(
@@ -322,8 +318,9 @@ class _TransactionFormPageState extends State<TransactionFormPage>
                                 duration: const Duration(milliseconds: 200),
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color:
-                                      isSelected ? kAccentColor : Colors.white,
+                                  color: isSelected
+                                      ? kAccentColor
+                                      : Colors.white,
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(

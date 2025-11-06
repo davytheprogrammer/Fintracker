@@ -18,7 +18,7 @@ class AuthService {
   Stream<TheUser?> get user {
     return _auth.authStateChanges()
     // .map((User? user) => _userFromFirebaseUser(user));
-    .map(_userFromFirebaseUser);  // simplified method
+    .map(_userFromFirebaseUser); // simplified method
   }
 
   // method to login anonymously (asynchronous task)
@@ -28,7 +28,7 @@ class AuthService {
       UserCredential result = await _auth.signInAnonymously();
       User? user = result.user;
       return _userFromFirebaseUser(user!);
-    } catch(e) {
+    } catch (e) {
       print(e.toString());
       return null;
     }
@@ -37,32 +37,42 @@ class AuthService {
   // method to login with email and password
   Future signInWithEmailAndPassword(String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       User? user = result.user;
       return _userFromFirebaseUser(user);
-    }
-    catch(e) {
+    } catch (e) {
       print(e.toString());
       return null;
     }
   }
 
   // method to register with email and password
-  Future registerWithEmailAndPassword(String displayName, String email, String password, String type) async {
+  Future registerWithEmailAndPassword(
+    String displayName,
+    String email,
+    String password,
+    String type,
+  ) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password).then((user){
-        user.user!.updateDisplayName(displayName);
-        return user;
-      });
+      UserCredential result = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((user) {
+            user.user!.updateDisplayName(displayName);
+            return user;
+          });
       User? user = result.user;
 
       // create a new document for the user with the uid
-      await DatabaseService(uid: user!.uid).updateUserData(displayName, user.email, type);
+      await DatabaseService(
+        uid: user!.uid,
+      ).updateUserData(displayName, user.email, type);
       print('print #2:');
       print(user);
       return _userFromFirebaseUser(user);
-    }
-    catch(e) {
+    } catch (e) {
       print(e.toString());
       return null;
     }
@@ -73,11 +83,9 @@ class AuthService {
   Future signOut() async {
     try {
       return await _auth.signOut();
-    }
-    catch(e) {
+    } catch (e) {
       print(e.toString());
       return null;
     }
   }
-
 }

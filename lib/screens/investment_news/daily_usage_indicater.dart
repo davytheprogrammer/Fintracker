@@ -33,9 +33,7 @@ class DailyUsageIndicator extends StatelessWidget {
         children: [
           Text(
             'Daily Roadmaps Generated:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Row(
             children: List.generate(
@@ -49,8 +47,8 @@ class DailyUsageIndicator extends StatelessWidget {
                   color: index < dailyUsageCount
                       ? theme.colorScheme.primary
                       : isDarkMode
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300,
+                      ? Colors.grey.shade700
+                      : Colors.grey.shade300,
                 ),
               ),
             ),

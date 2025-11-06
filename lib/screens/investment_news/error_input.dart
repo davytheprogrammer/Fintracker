@@ -19,10 +19,7 @@ class ErrorMessage extends StatelessWidget {
           Icon(Icons.error_outline, color: Colors.red),
           SizedBox(width: 12),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: Colors.red.shade900),
-            ),
+            child: Text(message, style: TextStyle(color: Colors.red.shade900)),
           ),
         ],
       ),

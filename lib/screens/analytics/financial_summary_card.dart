@@ -17,107 +17,163 @@ class FinancialSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFE91E63).withOpacity(0.9),
-            const Color(0xFFF06292).withOpacity(0.8),
+            const Color(0xFF6C63FF).withOpacity(0.9),
+            const Color(0xFF8B85FF).withOpacity(0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          )
+            color: const Color(0xFF6C63FF).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
         ],
+        border: Border.all(
+          color: Colors.white.withOpacity(0.2),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.account_balance_wallet, color: Colors.white),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
               const Text(
                 'Monthly Overview',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
                 ),
               ),
               const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
                 child: Text(
-                  DateFormat('MMMM yyyy').format(DateTime.now()),
+                  DateFormat('MMM yyyy').format(DateTime.now()),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildFinancialMetric('Income', formatCurrency(totalIncome),
-                  Icons.arrow_upward, Colors.green[100]!),
-              Container(
-                height: 40,
-                width: 1,
-                color: Colors.white.withOpacity(0.3),
+              _buildFinancialMetric(
+                'Income',
+                formatCurrency(totalIncome),
+                Icons.arrow_upward_rounded,
+                const Color(0xFF4CAF50),
               ),
-              _buildFinancialMetric('Expenses', formatCurrency(totalExpenses),
-                  Icons.arrow_downward, Colors.red[100]!),
               Container(
-                height: 40,
-                width: 1,
-                color: Colors.white.withOpacity(0.3),
+                height: 50,
+                width: 1.5,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(1),
+                ),
               ),
-              _buildFinancialMetric('Savings', formatCurrency(netSavings),
-                  Icons.savings, Colors.blue[100]!),
+              _buildFinancialMetric(
+                'Expenses',
+                formatCurrency(totalExpenses),
+                Icons.arrow_downward_rounded,
+                const Color(0xFFEF5350),
+              ),
+              Container(
+                height: 50,
+                width: 1.5,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+              _buildFinancialMetric(
+                'Savings',
+                formatCurrency(netSavings),
+                Icons.savings_rounded,
+                const Color(0xFFFFB74D),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
   Widget _buildFinancialMetric(
-      String label, String value, IconData icon, Color color) {
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              color: color,
-              size: 16,
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.2),
+              width: 1,
             ),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
-                fontSize: 12,
-              ),
-            ),
-          ],
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 18,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.5,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -125,9 +181,10 @@ class FinancialSummaryCard extends StatelessWidget {
           style: TextStyle(
             color: color,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
           ),
-        )
+        ),
       ],
     );
   }

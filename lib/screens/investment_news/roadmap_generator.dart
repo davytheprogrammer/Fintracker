@@ -94,7 +94,8 @@ class RoadmapGenerator {
     final currencySymbol = await _getCurrencySymbol();
     final currentDate = _getCurrentDate();
 
-    final prompt = '''
+    final prompt =
+        '''
     $strictInstructions
     
     ADDITIONAL INSTRUCTIONS:
@@ -124,7 +125,8 @@ class RoadmapGenerator {
     Ensure the output is valid JSON that can be parsed by Dart's json.decode().
     ''';
 
-    final prompt = '''
+    final prompt =
+        '''
     $cleaningInstructions
     
     Here is the JSON to fix:
@@ -150,31 +152,33 @@ class RoadmapGenerator {
       final currentDate = _getCurrentDate();
 
       final response = await model.generateContent([
-        Content.text(_createFallbackPrompt(
-          ideaController.text,
-          budgetController.text,
-          currentDate,
-        ))
+        Content.text(
+          _createFallbackPrompt(
+            ideaController.text,
+            budgetController.text,
+            currentDate,
+          ),
+        ),
       ]);
 
       final fallbackRoadmap = {
         'idea_validity': 'valid',
         'refinement_suggestions': ['Generated using fallback method'],
         'investment_timeline': [
-          {'phase': 'Initial', 'start': 'Immediate', 'end': '3 months'}
+          {'phase': 'Initial', 'start': 'Immediate', 'end': '3 months'},
         ],
         'financial_projection': {
           'total_cost': 0,
           'expected_revenue': 0,
-          'yearly_growth': [0, 0, 0]
+          'yearly_growth': [0, 0, 0],
         },
         'risk_assessment': {
           'score': 'medium',
           'risks': ['Generated using fallback method'],
-          'mitigation': ['See detailed markdown content']
+          'mitigation': ['See detailed markdown content'],
         },
         'word_cloud': [],
-        'markdown_content': response.text ?? ''
+        'markdown_content': response.text ?? '',
       };
 
       onSuccess(fallbackRoadmap);
@@ -238,7 +242,10 @@ class RoadmapGenerator {
   }
 
   static String _createFallbackPrompt(
-      String investmentIdea, String budget, String currentDate) {
+    String investmentIdea,
+    String budget,
+    String currentDate,
+  ) {
     return '''
     Generate a detailed investment roadmap for: $investmentIdea
     

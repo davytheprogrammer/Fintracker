@@ -4,7 +4,12 @@ class TherapistLocationModel {
   double? longitude;
   String? therapist_email;
 
-  TherapistLocationModel({this.latitude, this.location, this.longitude, this.therapist_email});
+  TherapistLocationModel({
+    this.latitude,
+    this.location,
+    this.longitude,
+    this.therapist_email,
+  });
 
   // Receive data from database
   factory TherapistLocationModel.fromMap(map) {
@@ -17,7 +22,7 @@ class TherapistLocationModel {
   }
 
   // Send data to database
-  Map<String,dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'latitude': latitude,
       'location': location,

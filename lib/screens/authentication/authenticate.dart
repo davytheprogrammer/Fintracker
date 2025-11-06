@@ -25,10 +25,7 @@ class _AuthenticateState extends State<Authenticate>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
   }
 
@@ -57,10 +54,7 @@ class _AuthenticateState extends State<Authenticate>
           ? Login(toggleView: toggleView, key: const ValueKey('login'))
           : Register(toggleView: toggleView, key: const ValueKey('register')),
       transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+        return FadeTransition(opacity: animation, child: child);
       },
     );
   }

@@ -78,7 +78,7 @@ class _LoginState extends State<Login> {
                             color: Colors.pink.shade100,
                             blurRadius: 15,
                             offset: const Offset(0, 8),
-                          )
+                          ),
                         ],
                       ),
                       child: const Icon(
@@ -95,9 +95,7 @@ class _LoginState extends State<Login> {
                     children: [
                       Text(
                         'Welcome Back',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
+                        style: Theme.of(context).textTheme.headlineMedium
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -108,9 +106,9 @@ class _LoginState extends State<Login> {
                       Text(
                         'Sign in to continue',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.grey[600],
-                              letterSpacing: 0.3,
-                            ),
+                          color: Colors.grey[600],
+                          letterSpacing: 0.3,
+                        ),
                       ),
                     ],
                   ),
@@ -121,8 +119,10 @@ class _LoginState extends State<Login> {
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon:
-                          Icon(Icons.email_outlined, color: Colors.grey[600]),
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: Colors.grey[600],
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -131,18 +131,23 @@ class _LoginState extends State<Login> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.pink.shade200, width: 1.5),
+                        borderSide: BorderSide(
+                          color: Colors.pink.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 16),
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
                       if (val?.isEmpty ?? true)
                         return 'Please enter your email';
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                          .hasMatch(val!)) {
+                      if (!RegExp(
+                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(val!)) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -156,8 +161,10 @@ class _LoginState extends State<Login> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.grey[600]),
-                      prefixIcon:
-                          Icon(Icons.lock_outline, color: Colors.grey[600]),
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: Colors.grey[600],
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -166,7 +173,8 @@ class _LoginState extends State<Login> {
                           color: Colors.grey[600],
                         ),
                         onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -176,11 +184,15 @@ class _LoginState extends State<Login> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.pink.shade200, width: 1.5),
+                        borderSide: BorderSide(
+                          color: Colors.pink.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 16),
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                     obscureText: _obscurePassword,
                     validator: (val) => val?.isEmpty ?? true
@@ -217,10 +229,7 @@ class _LoginState extends State<Login> {
                       ),
                       child: Text(
                         _error,
-                        style: TextStyle(
-                          color: Colors.pink[700],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.pink[700], fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -235,13 +244,10 @@ class _LoginState extends State<Login> {
                           color: Colors.pink.shade100,
                           blurRadius: 10,
                           offset: const Offset(0, 5),
-                        )
+                        ),
                       ],
                       gradient: LinearGradient(
-                        colors: [
-                          Colors.pink.shade300,
-                          Colors.pink.shade200,
-                        ],
+                        colors: [Colors.pink.shade300, Colors.pink.shade200],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -281,10 +287,7 @@ class _LoginState extends State<Login> {
                   Row(
                     children: [
                       Expanded(
-                        child: Divider(
-                          color: Colors.grey[300],
-                          thickness: 1,
-                        ),
+                        child: Divider(color: Colors.grey[300], thickness: 1),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -297,10 +300,7 @@ class _LoginState extends State<Login> {
                         ),
                       ),
                       Expanded(
-                        child: Divider(
-                          color: Colors.grey[300],
-                          thickness: 1,
-                        ),
+                        child: Divider(color: Colors.grey[300], thickness: 1),
                       ),
                     ],
                   ),
@@ -312,10 +312,7 @@ class _LoginState extends State<Login> {
                     children: [
                       Text(
                         "Don't have an account? ",
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       GestureDetector(
                         onTap: () => widget.toggleView(),

@@ -60,9 +60,7 @@ class UserService {
   Future<void> updateStreakDays(String uid, int streakDays) async {
     final userRef = _db.collection('users').doc(uid);
 
-    await userRef.update({
-      'streakDays': streakDays,
-    });
+    await userRef.update({'streakDays': streakDays});
   }
 
   // Add support contact
@@ -102,26 +100,27 @@ class UserService {
   }
 
   // Set or update goal
-  Future<void> setGoal(String uid, String goalId, Map<String, dynamic> goalData) async {
+  Future<void> setGoal(
+    String uid,
+    String goalId,
+    Map<String, dynamic> goalData,
+  ) async {
     final userRef = _db.collection('users').doc(uid);
 
-    await userRef.update({
-      'goals.$goalId': goalData,
-    });
+    await userRef.update({'goals.$goalId': goalData});
   }
 
   // Remove goal
   Future<void> removeGoal(String uid, String goalId) async {
     final userRef = _db.collection('users').doc(uid);
 
-    await userRef.update({
-      'goals.$goalId': FieldValue.delete(),
-    });
+    await userRef.update({'goals.$goalId': FieldValue.delete()});
   }
 
   // Get user by email
   Future<UserModel?> getUserByEmail(String email) async {
-    final querySnapshot = await _db.collection('users')
+    final querySnapshot = await _db
+        .collection('users')
         .where('email', isEqualTo: email)
         .limit(1)
         .get();
@@ -147,7 +146,8 @@ class UserService {
 
   // Stream user data for real-time updates
   Stream<UserModel> streamUserData(String uid) {
-    return _db.collection('users')
+    return _db
+        .collection('users')
         .doc(uid)
         .snapshots()
         .map((doc) => UserModel.fromFirestore(doc));

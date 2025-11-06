@@ -13,9 +13,7 @@ class MarkdownSection extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -36,7 +34,7 @@ class MarkdownSection extends StatelessWidget {
                   icon: Icon(Icons.download),
                   onPressed: () {},
                   tooltip: 'Download markdown file',
-                )
+                ),
               ],
             ),
             const Divider(),
@@ -48,7 +46,8 @@ class MarkdownSection extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(12),
               child: Markdown(
-                data: roadmapData['markdown_content'] ??
+                data:
+                    roadmapData['markdown_content'] ??
                     '## No Markdown Content Available\n\nPlease generate markdown content first.',
                 selectable: true,
                 padding: EdgeInsets.zero,
@@ -64,22 +63,13 @@ class MarkdownSection extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  h3: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  p: TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
+                  h3: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  p: TextStyle(fontSize: 14, height: 1.5),
                   a: TextStyle(
                     color: Colors.blue,
                     decoration: TextDecoration.underline,
                   ),
-                  listBullet: TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
+                  listBullet: TextStyle(fontSize: 14, height: 1.5),
                   code: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 13,
@@ -149,9 +139,7 @@ class TimelineSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -216,9 +204,7 @@ class TimelineSection extends StatelessWidget {
                             ),
                             Text(
                               '${phase['start']} - ${phase['end']}',
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                              ),
+                              style: TextStyle(color: Colors.grey.shade600),
                             ),
                           ],
                         ),
@@ -247,9 +233,7 @@ class FinancialBreakdown extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 12),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -290,9 +274,7 @@ class FinancialBreakdown extends StatelessWidget {
                       children: [
                         const Text(
                           'Total Investment Cost',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '\$${financials['total_cost']}',
@@ -311,9 +293,7 @@ class FinancialBreakdown extends StatelessWidget {
                       children: [
                         const Text(
                           'Expected Revenue',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '\$${financials['expected_revenue']}',
@@ -332,10 +312,7 @@ class FinancialBreakdown extends StatelessWidget {
             const SizedBox(height: 20),
             const Text(
               'Yearly Growth Projection',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             Container(
@@ -345,8 +322,11 @@ class FinancialBreakdown extends StatelessWidget {
                   ? BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
-                        maxY: yearlyGrowth.cast<num>().fold<int>(
-                                0, (p, c) => (p > c.toInt() ? p : c.toInt())) *
+                        maxY:
+                            yearlyGrowth.cast<num>().fold<int>(
+                              0,
+                              (p, c) => (p > c.toInt() ? p : c.toInt()),
+                            ) *
                             1.2,
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
@@ -360,7 +340,8 @@ class FinancialBreakdown extends StatelessWidget {
                                     '${value.round()}%',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Theme.of(context).brightness ==
+                                      color:
+                                          Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? Colors.grey.shade400
                                           : Colors.grey.shade700,
@@ -380,7 +361,8 @@ class FinancialBreakdown extends StatelessWidget {
                                     'Year ${value.toInt() + 1}',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Theme.of(context).brightness ==
+                                      color:
+                                          Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? Colors.grey.shade400
                                           : Colors.grey.shade700,
@@ -407,8 +389,9 @@ class FinancialBreakdown extends StatelessWidget {
                                 barRods: [
                                   BarChartRodData(
                                     toY: entry.value.toDouble(),
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     width: 20,
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(4),
@@ -475,9 +458,7 @@ class RiskAssessment extends StatelessWidget {
 
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 12),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -524,9 +505,7 @@ class RiskAssessment extends StatelessWidget {
                     children: [
                       const Text(
                         'Risk Level',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         riskScore.toUpperCase(),
@@ -544,10 +523,7 @@ class RiskAssessment extends StatelessWidget {
             const SizedBox(height: 20),
             const Text(
               'Identified Risks',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -567,9 +543,7 @@ class RiskAssessment extends StatelessWidget {
                             : Colors.amber.shade700,
                       ),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(riskAssessment['risks'][index]),
-                      ),
+                      Expanded(child: Text(riskAssessment['risks'][index])),
                     ],
                   ),
                 );
@@ -578,10 +552,7 @@ class RiskAssessment extends StatelessWidget {
             const SizedBox(height: 16),
             const Text(
               'Mitigation Strategies',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             ListView.builder(
               physics: const NeverScrollableScrollPhysics(),

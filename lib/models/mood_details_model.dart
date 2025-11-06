@@ -17,11 +17,7 @@ class MoodDetailsModel {
   }
 
   // Send data to database
-  Map<String,dynamic> toMap() {
-    return {
-      'date': date,
-      'emoji': emoji,
-      'description': description,
-    };
+  Map<String, dynamic> toMap() {
+    return {'date': date, 'emoji': emoji, 'description': description};
   }
 }

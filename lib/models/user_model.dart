@@ -19,7 +19,7 @@ class UserModel {
     this.supportNetwork = const [],
     this.emergencyContacts = const [],
   }) : this.soberDate =
-            soberDate ?? DateTime.now(); // Set default value if not provided
+           soberDate ?? DateTime.now(); // Set default value if not provided
 
   // Factory constructor to create UserModel from Firestore document
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -30,7 +30,8 @@ class UserModel {
           ? (data['soberDate'] as Timestamp).toDate()
           : DateTime.now(),
       streakDays: data['streakDays'] ?? 0,
-      relapses: (data['relapses'] as List<dynamic>?)
+      relapses:
+          (data['relapses'] as List<dynamic>?)
               ?.map((x) => (x as Timestamp).toDate())
               .toList() ??
           [],

@@ -29,7 +29,7 @@ class _GoalsPageState extends State<GoalsPage> {
     'Education',
     'Travel',
     'Home',
-    'Vehicle'
+    'Vehicle',
   ];
 
   // Theme colors
@@ -58,10 +58,9 @@ class _GoalsPageState extends State<GoalsPage> {
 
         setState(() {
           _goals = snapshot.docs
-              .map((doc) => {
-                    ...doc.data() as Map<String, dynamic>,
-                    'id': doc.id,
-                  })
+              .map(
+                (doc) => {...doc.data() as Map<String, dynamic>, 'id': doc.id},
+              )
               .toList();
         });
       }
@@ -121,9 +120,7 @@ class _GoalsPageState extends State<GoalsPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: lightPink,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Create New Goal',
           style: TextStyle(
@@ -175,8 +172,9 @@ class _GoalsPageState extends State<GoalsPage> {
                       labelStyle: TextStyle(color: darkPink),
                       prefixIcon: Icon(Icons.category, color: primaryPink),
                       border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
                     ),
                     items: _categories.map((String category) {
                       return DropdownMenuItem(
@@ -205,10 +203,7 @@ class _GoalsPageState extends State<GoalsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: darkPink),
-            ),
+            child: Text('Cancel', style: TextStyle(color: darkPink)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -230,10 +225,7 @@ class _GoalsPageState extends State<GoalsPage> {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text(
-              'Create Goal',
-              style: TextStyle(color: white),
-            ),
+            child: const Text('Create Goal', style: TextStyle(color: white)),
           ),
         ],
       ),
@@ -241,7 +233,10 @@ class _GoalsPageState extends State<GoalsPage> {
   }
 
   void _showUpdateProgressDialog(
-      String goalId, double currentAmount, double targetAmount) {
+    String goalId,
+    double currentAmount,
+    double targetAmount,
+  ) {
     final formKey = GlobalKey<FormState>();
     double newAmount = currentAmount;
 
@@ -249,9 +244,7 @@ class _GoalsPageState extends State<GoalsPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: lightPink,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Update Progress',
           style: TextStyle(
@@ -286,10 +279,7 @@ class _GoalsPageState extends State<GoalsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: darkPink),
-            ),
+            child: Text('Cancel', style: TextStyle(color: darkPink)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -306,10 +296,7 @@ class _GoalsPageState extends State<GoalsPage> {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text(
-              'Update',
-              style: TextStyle(color: white),
-            ),
+            child: const Text('Update', style: TextStyle(color: white)),
           ),
         ],
       ),
@@ -397,190 +384,192 @@ class _GoalsPageState extends State<GoalsPage> {
     final double targetAmount = (goal['targetAmount'] as num).toDouble();
     final double currentAmount = (goal['currentAmount'] as num).toDouble();
     final DateTime deadline = (goal['deadline'] as Timestamp).toDate();
-    final double progress =
-        targetAmount > 0 ? (currentAmount / targetAmount) : 0;
+    final double progress = targetAmount > 0
+        ? (currentAmount / targetAmount)
+        : 0;
     final bool isCompleted = currentAmount >= targetAmount;
     final daysLeft = deadline.difference(_currentDate).inDays;
 
     final Color statusColor = isCompleted
         ? Colors.green
         : daysLeft < 0
-            ? Colors.red
-            : daysLeft < 30
-                ? Colors.orange
-                : primaryPink;
+        ? Colors.red
+        : daysLeft < 30
+        ? Colors.orange
+        : primaryPink;
 
     return Card(
-      elevation: 8,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [lightPink, white],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          elevation: 8,
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          goal['title'],
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: darkPink,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: primaryPink.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            goal['category'],
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: darkPink,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    color: darkPink,
-                    onPressed: () => _deleteGoal(goal['id']),
-                  ),
-                ],
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [lightPink, white],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              const SizedBox(height: 24),
-              Row(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircularPercentIndicator(
-                    radius: 50.0,
-                    lineWidth: 10.0,
-                    percent: progress,
-                    center: Text(
-                      '${(progress * 100).toInt()}%',
-                      style: TextStyle(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              goal['title'],
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: darkPink,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: primaryPink.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                goal['category'],
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: darkPink,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
                         color: darkPink,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        onPressed: () => _deleteGoal(goal['id']),
                       ),
-                    ),
-                    progressColor: statusColor,
-                    backgroundColor: lightPink,
-                    animation: true,
-                    animationDuration: 1000,
+                    ],
                   ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Progress',
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      CircularPercentIndicator(
+                        radius: 50.0,
+                        lineWidth: 10.0,
+                        percent: progress,
+                        center: Text(
+                          '${(progress * 100).toInt()}%',
                           style: TextStyle(
-                            fontSize: 16,
-                            color: darkPink.withOpacity(0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'KES ${NumberFormat('#,##0').format(currentAmount)} / ${NumberFormat('#,##0').format(targetAmount)}',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
                             color: darkPink,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            backgroundColor: lightPink,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(statusColor),
-                            minHeight: 8,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      daysLeft < 0
-                          ? 'Overdue by ${-daysLeft} days'
-                          : '$daysLeft days left',
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
+                        progressColor: statusColor,
+                        backgroundColor: lightPink,
+                        animation: true,
+                        animationDuration: 1000,
                       ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: isCompleted
-                        ? null
-                        : () => _showUpdateProgressDialog(
-                              goal['id'],
-                              currentAmount,
-                              targetAmount,
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Progress',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: darkPink.withOpacity(0.7),
+                              ),
                             ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryPink,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                            const SizedBox(height: 8),
+                            Text(
+                              'KES ${NumberFormat('#,##0').format(currentAmount)} / ${NumberFormat('#,##0').format(targetAmount)}',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: darkPink,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: LinearProgressIndicator(
+                                value: progress,
+                                backgroundColor: lightPink,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  statusColor,
+                                ),
+                                minHeight: 8,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          daysLeft < 0
+                              ? 'Overdue by ${-daysLeft} days'
+                              : '$daysLeft days left',
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: const Text('Update Progress'),
+                      ElevatedButton(
+                        onPressed: isCompleted
+                            ? null
+                            : () => _showUpdateProgressDialog(
+                                goal['id'],
+                                currentAmount,
+                                targetAmount,
+                              ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryPink,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                        ),
+                        child: const Text('Update Progress'),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(duration: const Duration(milliseconds: 500))
         .slideX(begin: 0.2, end: 0);
@@ -597,9 +586,7 @@ class _GoalsPageState extends State<GoalsPage> {
         backgroundColor: primaryPink,
         elevation: 0,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
         actions: [
           IconButton(
@@ -623,56 +610,58 @@ class _GoalsPageState extends State<GoalsPage> {
                 ),
               )
             : _goals.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.flag_outlined,
-                          size: 80,
-                          color: darkPink.withOpacity(0.3),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'No goals set yet',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: darkPink,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Start by creating your first financial goal',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: darkPink.withOpacity(0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton.icon(
-                          onPressed: _showAddGoalDialog,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add Your First Goal'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryPink,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ],
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.flag_outlined,
+                      size: 80,
+                      color: darkPink.withOpacity(0.3),
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.only(top: 16, bottom: 100),
-                    itemCount: _goals.length,
-                    itemBuilder: (context, index) {
-                      return _buildGoalCard(_goals[index]);
-                    },
-                  ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'No goals set yet',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: darkPink,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Start by creating your first financial goal',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: darkPink.withOpacity(0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: _showAddGoalDialog,
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Your First Goal'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryPink,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.only(top: 16, bottom: 100),
+                itemCount: _goals.length,
+                itemBuilder: (context, index) {
+                  return _buildGoalCard(_goals[index]);
+                },
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddGoalDialog,

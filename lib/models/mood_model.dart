@@ -8,7 +8,9 @@ class MoodModel {
 
   // Receive data from database
   factory MoodModel.fromMap(map) {
-    List<MoodDetailsModel> moodDetails = map['moodDetails'].map((data) => MoodDetailsModel.fromMap(data)).toList();    
+    List<MoodDetailsModel> moodDetails = map['moodDetails']
+        .map((data) => MoodDetailsModel.fromMap(data))
+        .toList();
     return MoodModel(
       email: map['email'],
       moodDetails: moodDetails.cast<MoodDetailsModel>(),
@@ -16,7 +18,7 @@ class MoodModel {
   }
 
   // Send data to database
-  Map<String,dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'email': email,
       'moodDetails': moodDetails!.map((data) => data.toMap()).toList(),

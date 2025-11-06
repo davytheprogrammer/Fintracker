@@ -128,10 +128,7 @@ class BudgetProgress extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            BudgetConstants.gradientStart,
-            BudgetConstants.gradientEnd,
-          ],
+          colors: [BudgetConstants.gradientStart, BudgetConstants.gradientEnd],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -144,10 +141,7 @@ class BudgetProgress extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _BudgetHeader(
-            totalIncome: safeIncome,
-            budgetHealth: budgetHealth,
-          ),
+          _BudgetHeader(totalIncome: safeIncome, budgetHealth: budgetHealth),
           _BudgetSummary(
             income: safeIncome,
             expenses: safeExpenses,
@@ -192,10 +186,7 @@ class _BudgetHeader extends StatelessWidget {
   final double totalIncome;
   final BudgetHealthStatus budgetHealth;
 
-  const _BudgetHeader({
-    required this.totalIncome,
-    required this.budgetHealth,
-  });
+  const _BudgetHeader({required this.totalIncome, required this.budgetHealth});
 
   @override
   Widget build(BuildContext context) {
@@ -210,17 +201,11 @@ class _BudgetHeader extends StatelessWidget {
         children: [
           const Text(
             'Budget Overview',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           if (totalIncome > 0)
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: budgetHealth.statusColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
@@ -272,8 +257,9 @@ class _BudgetSummary extends StatelessWidget {
           ),
           _SummaryItem(
             label: 'Remaining',
-            amount:
-                formatCurrency((income - expenses).clamp(0, double.infinity)),
+            amount: formatCurrency(
+              (income - expenses).clamp(0, double.infinity),
+            ),
             color: income > expenses
                 ? BudgetConstants.safeColor
                 : BudgetConstants.dangerColor,
@@ -299,13 +285,7 @@ class _SummaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 12,
-          ),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
         const SizedBox(height: 4),
         Text(
           amount,
@@ -355,10 +335,7 @@ class _BudgetProgressBar extends StatelessWidget {
           children: [
             Text(
               category.displayName,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
             ),
             Text(
               '${formatCurrency(spent)} / ${formatCurrency(allocated)}',
@@ -433,10 +410,7 @@ class _EmptyStateWidget extends StatelessWidget {
           Text(
             'Add your income to see a detailed breakdown\nof recommended budget allocations',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey[600],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 14),
           ),
         ],
       ),

@@ -7,16 +7,14 @@ class ExpenseChart extends StatefulWidget {
   final List<Map<String, dynamic>> transactions;
   final String Function(double) formatCurrency;
 
-  ExpenseChart({
-    required this.transactions,
-    required this.formatCurrency,
-  });
+  ExpenseChart({required this.transactions, required this.formatCurrency});
 
   @override
   _ExpenseChartState createState() => _ExpenseChartState();
 }
 
-class _ExpenseChartState extends State<ExpenseChart> with SingleTickerProviderStateMixin {
+class _ExpenseChartState extends State<ExpenseChart>
+    with SingleTickerProviderStateMixin {
   int touchedIndex = -1;
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -72,8 +70,9 @@ class _ExpenseChartState extends State<ExpenseChart> with SingleTickerProviderSt
     };
 
     // Sort categories by expense amount (descending)
-    List<MapEntry<String, double>> sortedCategories = categoryExpenses.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    List<MapEntry<String, double>> sortedCategories =
+        categoryExpenses.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
 
     // Create pie chart sections
     List<PieChartSectionData> sections = [];
@@ -81,7 +80,9 @@ class _ExpenseChartState extends State<ExpenseChart> with SingleTickerProviderSt
     for (var entry in sortedCategories) {
       final String category = entry.key;
       final double amount = entry.value;
-      final double percentage = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
+      final double percentage = totalExpense > 0
+          ? (amount / totalExpense) * 100
+          : 0;
 
       final Color color = categoryColors[category] ?? Color(0xFF9E9E9E);
 
@@ -151,71 +152,76 @@ class _ExpenseChartState extends State<ExpenseChart> with SingleTickerProviderSt
                   height: 200,
                   child: sections.isEmpty
                       ? Center(
-                    child: Text(
-                      'No expense data available',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 14,
-                      ),
-                    ),
-                  )
-                      : Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      PieChart(
-                        PieChartData(
-                          pieTouchData: PieTouchData(
-                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                              setState(() {
-                                if (!event.isInterestedForInteractions ||
-                                    pieTouchResponse == null ||
-                                    pieTouchResponse.touchedSection == null) {
-                                  touchedIndex = -1;
-                                  return;
-                                }
-                                touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
-                              });
-                            },
-                          ),
-                          borderData: FlBorderData(show: false),
-                          sectionsSpace: 0, // No gaps between sections
-                          centerSpaceRadius: 70, // Large center hole
-                          sections: sections.map((section) {
-                            return PieChartSectionData(
-                              color: section.color,
-                              value: section.value,
-                              title: section.title,
-                              radius: section.radius * _animation.value,
-                              titleStyle: section.titleStyle,
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      // Centered total text
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Monthly Expenses',
+                          child: Text(
+                            'No expense data available',
                             style: TextStyle(
                               color: Colors.black54,
-                              fontSize: 11,
-                              fontWeight: FontWeight.normal,
+                              fontSize: 14,
                             ),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            widget.formatCurrency(totalExpense),
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                        )
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            PieChart(
+                              PieChartData(
+                                pieTouchData: PieTouchData(
+                                  touchCallback:
+                                      (FlTouchEvent event, pieTouchResponse) {
+                                        setState(() {
+                                          if (!event
+                                                  .isInterestedForInteractions ||
+                                              pieTouchResponse == null ||
+                                              pieTouchResponse.touchedSection ==
+                                                  null) {
+                                            touchedIndex = -1;
+                                            return;
+                                          }
+                                          touchedIndex = pieTouchResponse
+                                              .touchedSection!
+                                              .touchedSectionIndex;
+                                        });
+                                      },
+                                ),
+                                borderData: FlBorderData(show: false),
+                                sectionsSpace: 0, // No gaps between sections
+                                centerSpaceRadius: 70, // Large center hole
+                                sections: sections.map((section) {
+                                  return PieChartSectionData(
+                                    color: section.color,
+                                    value: section.value,
+                                    title: section.title,
+                                    radius: section.radius * _animation.value,
+                                    titleStyle: section.titleStyle,
+                                  );
+                                }).toList(),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                            // Centered total text
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Monthly Expenses',
+                                  style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  widget.formatCurrency(totalExpense),
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                 ),
               );
             },

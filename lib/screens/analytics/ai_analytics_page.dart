@@ -130,7 +130,9 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_prefsKeyInsights, insights);
       await prefs.setInt(
-          _prefsKeyTimestamp, DateTime.now().millisecondsSinceEpoch);
+        _prefsKeyTimestamp,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } catch (e) {
       print('Failed to cache insights: $e');
     }
@@ -302,9 +304,11 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     String categoryBreakdown = topCategories.isEmpty
         ? "No category data available."
         : topCategories
-            .map((entry) =>
-                "${entry.key}: ${_formatCurrency(entry.value)} (${(_getPercentage(entry.value, _totalExpenses)).toStringAsFixed(1)}%)")
-            .join(", ");
+              .map(
+                (entry) =>
+                    "${entry.key}: ${_formatCurrency(entry.value)} (${(_getPercentage(entry.value, _totalExpenses)).toStringAsFixed(1)}%)",
+              )
+              .join(", ");
 
     return '''
     Financial Analysis Prompt:
@@ -331,8 +335,10 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   String _formatCurrency(double amount) {
-    return NumberFormat.currency(symbol: 'KSh ', decimalDigits: 0)
-        .format(amount);
+    return NumberFormat.currency(
+      symbol: 'KSh ',
+      decimalDigits: 0,
+    ).format(amount);
   }
 
   Future<String> _callAIAnalytics(String prompt) async {
@@ -353,12 +359,12 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
             {
               "role": "system",
               "content":
-                  "You are a friendly financial advisor. Provide helpful, encouraging advice. and do not provide a too long text"
+                  "You are a friendly financial advisor. Provide helpful, encouraging advice. and do not provide a too long text",
             },
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
           ],
           "temperature": 0.7,
-          "max_tokens": 300
+          "max_tokens": 300,
         }),
       );
 
@@ -396,24 +402,44 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFF0F0F1E)
+          : const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Smart Financial Insights',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'FinSpense Analytics',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+            letterSpacing: -0.5,
+          ),
+        ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFFF06292), Color(0xFFE91E63)],
+              colors: [
+                const Color(0xFF6C63FF).withOpacity(0.95),
+                const Color(0xFF8B85FF).withOpacity(0.95),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
         ),
+        elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _isFetchingData ? null : _initializeData,
-          )
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+              onPressed: _isFetchingData ? null : _initializeData,
+            ),
+          ),
         ],
       ),
       body: _buildAnalyticsContent(),
@@ -462,13 +488,12 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
                         },
                       ),
                       const SizedBox(height: 16),
-                      SpendingTrendCard(
-                        monthlyData: _monthlyData,
-                      ),
+                      SpendingTrendCard(monthlyData: _monthlyData),
                     ],
                   ),
                 );
-              }),
+              },
+            ),
     );
   }
 

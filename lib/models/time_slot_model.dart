@@ -6,7 +6,14 @@ class TimeSlotModel {
   String? therapist_email;
   int? time;
 
-  TimeSlotModel({this.availability, this.booked_by, this.day, this.mode, this.therapist_email, this.time});
+  TimeSlotModel({
+    this.availability,
+    this.booked_by,
+    this.day,
+    this.mode,
+    this.therapist_email,
+    this.time,
+  });
 
   // Receive data from database
   factory TimeSlotModel.fromMap(map) {
@@ -21,7 +28,7 @@ class TimeSlotModel {
   }
 
   // Send data to database
-  Map<String,dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'availability': availability,
       'booked_by': booked_by,

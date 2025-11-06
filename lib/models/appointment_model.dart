@@ -6,7 +6,12 @@ class AppointmentModel {
   String? mode;
   String? booked_by;
 
-  AppointmentModel({this.therapist_email, this.date, this.mode, this.booked_by});
+  AppointmentModel({
+    this.therapist_email,
+    this.date,
+    this.mode,
+    this.booked_by,
+  });
 
   // Receive data from database
   factory AppointmentModel.fromMap(map) {
@@ -19,7 +24,7 @@ class AppointmentModel {
   }
 
   // Send data to database
-  Map<String,dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'therapist_email': therapist_email,
       'date': date,

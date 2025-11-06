@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:Finspense/models/the_user.dart';
 
 class UserList extends StatefulWidget {
-  const UserList({ Key? key }) : super(key: key);
+  const UserList({Key? key}) : super(key: key);
 
   @override
   _UserListState createState() => _UserListState();
@@ -12,7 +12,6 @@ class UserList extends StatefulWidget {
 class _UserListState extends State<UserList> {
   @override
   Widget build(BuildContext context) {
-
     final users = Provider.of<List<TheUser>?>(context);
     // print(brews.docs);
     if (users != null) {
@@ -22,8 +21,6 @@ class _UserListState extends State<UserList> {
       // }
     }
 
-    return Container(
-      
-    );
+    return Container();
   }
 }

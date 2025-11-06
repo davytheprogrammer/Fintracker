@@ -27,9 +27,7 @@ class CategoryDonutChart extends StatelessWidget {
 
     return Card(
       elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -78,7 +76,8 @@ class CategoryDonutChart extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(top: 16.0),
                           child: _buildCategoryDetails(
-                              sortedCategories[selectedCategoryIndex]),
+                            sortedCategories[selectedCategoryIndex],
+                          ),
                         ),
                     ],
                   ),
@@ -108,7 +107,8 @@ class CategoryDonutChart extends StatelessWidget {
                 return;
               }
               onCategorySelected(
-                  pieTouchResponse.touchedSection!.touchedSectionIndex);
+                pieTouchResponse.touchedSection!.touchedSectionIndex,
+              );
             },
           ),
           borderData: FlBorderData(show: false),
@@ -124,7 +124,8 @@ class CategoryDonutChart extends StatelessWidget {
   }
 
   List<PieChartSectionData> _generatePieChartSections(
-      List<MapEntry<String, double>> categories) {
+    List<MapEntry<String, double>> categories,
+  ) {
     return categories.asMap().entries.map((entry) {
       final index = entry.key;
       final category = entry.value.key;
@@ -191,10 +192,7 @@ class CategoryDonutChart extends StatelessWidget {
                   ),
                   Text(
                     '${getPercentage(value, totalExpenses).toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.pink[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.pink[600]),
                   ),
                 ],
               ),
@@ -213,10 +211,7 @@ class CategoryDonutChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.pink[50],
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.pink[100]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.pink[100]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,17 +230,11 @@ class CategoryDonutChart extends StatelessWidget {
             children: [
               Text(
                 'Amount: ${formatCurrency(category.value)}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.pink[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.pink[600]),
               ),
               Text(
                 '${percentage.toStringAsFixed(1)}% of total expenses',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.pink[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.pink[600]),
               ),
             ],
           ),

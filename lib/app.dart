@@ -13,8 +13,10 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   static final List<Widget> _pages = [
     const HomePage(),
@@ -24,11 +26,33 @@ class _AppState extends State<App> {
     SettingsPage(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   void _onItemTapped(int index) {
     if (_selectedIndex != index) {
+      _animationController.reset();
       setState(() {
         _selectedIndex = index;
       });
+      _animationController.forward();
     }
   }
 
@@ -37,43 +61,40 @@ class _AppState extends State<App> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: IndexedStack(
-          index: _selectedIndex,
-          children: _pages,
-        ),
+        child: IndexedStack(index: _selectedIndex, children: _pages),
       ),
       bottomNavigationBar: Container(
-        height: 65,
         decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1A1A2E)
+              : Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
               offset: const Offset(0, -5),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          child: BottomAppBar(
-            height: 65,
-            padding: EdgeInsets.zero, // Ensure padding is non-negative
-            elevation: 0,
-            color: Colors.white,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
-                _buildNavItem(
-                    1, Icons.analytics_outlined, Icons.analytics, 'Analytics'),
-                _buildNavItem(2, Icons.flag_outlined, Icons.flag, 'Goals'),
-                _buildNavItem(3, Icons.account_balance_outlined,
-                    Icons.account_balance, 'Investments'),
-                _buildNavItem(
-                    4, Icons.settings_outlined, Icons.settings, 'Settings'),
+                _buildModernNavItem(0, Icons.home_rounded, 'Home'),
+                _buildModernNavItem(1, Icons.analytics_rounded, 'Analytics'),
+                _buildModernNavItem(2, Icons.flag_rounded, 'Goals'),
+                _buildModernNavItem(
+                  3,
+                  Icons.account_balance_wallet_rounded,
+                  'Invest',
+                ),
+                _buildModernNavItem(4, Icons.person_rounded, 'Profile'),
               ],
             ),
           ),
@@ -82,36 +103,63 @@ class _AppState extends State<App> {
     );
   }
 
-  Widget _buildNavItem(
-      int index, IconData icon, IconData activeIcon, String label) {
+  Widget _buildModernNavItem(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark
+        ? const Color(0xFF8B85FF)
+        : const Color(0xFF6C63FF);
+    final inactiveColor = isDark
+        ? const Color(0xFF8A8A8E)
+        : const Color(0xFF9CA3AF);
+
     return Expanded(
-      child: InkWell(
+      child: GestureDetector(
         onTap: () => _onItemTapped(index),
-        customBorder: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(15)),
-        ),
-        splashColor: const Color(0xFF2C3E50).withOpacity(0.1),
-        highlightColor: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? const Color(0xFF2C3E50) : Colors.grey,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? const Color(0xFF2C3E50) : Colors.grey,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: isSelected
+                ? primaryColor.withOpacity(0.1)
+                : Colors.transparent,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected
+                      ? primaryColor.withOpacity(0.15)
+                      : Colors.transparent,
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? primaryColor : inactiveColor,
+                  size: 26,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  color: isSelected ? primaryColor : inactiveColor,
+                  fontSize: isSelected ? 12 : 11,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  letterSpacing: 0.5,
+                ),
+                child: Text(label),
+              ),
+            ],
+          ),
         ),
       ),
     );

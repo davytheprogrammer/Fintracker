@@ -16,73 +16,129 @@ class AIInsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.pink.shade50],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(15),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFFF6B9D).withOpacity(0.1),
+            const Color(0xFFFF8FB5).withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: isLoadingAIInsight
-              ? _buildAIInsightShimmer()
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.pink[50],
-                                borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFFF6B9D).withOpacity(0.2),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF6B9D).withOpacity(0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: isLoadingAIInsight
+            ? _buildAIInsightShimmer()
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFFFF6B9D).withOpacity(0.2),
+                                  const Color(0xFFFF8FB5).withOpacity(0.1),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              child: Icon(Icons.tips_and_updates,
-                                  color: Colors.pink[300]),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'AI Insights',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.pink[700],
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFFFF6B9D).withOpacity(0.3),
+                                width: 1,
                               ),
                             ),
-                          ],
+                            child: const Icon(
+                              Icons.tips_and_updates_rounded,
+                              color: Color(0xFFFF6B9D),
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          const Text(
+                            'AI Insights',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF1A1A1A),
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF6B9D).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.refresh, color: Colors.pink[300]),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.refresh_rounded,
+                            color: Color(0xFFFF6B9D),
+                          ),
                           onPressed: performAIAnalysis,
                           tooltip: 'Refresh insights',
                         ),
-                      ],
-                    ),
-                    const Divider(height: 25),
-                    MarkdownBody(
-                      data: aiInsight,
-                      styleSheet: MarkdownStyleSheet(
-                        p: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.black87,
-                          height: 1.5,
-                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFFF6B9D).withOpacity(0.3),
+                          Colors.transparent,
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
                     ),
-                  ],
-                ),
-        ),
+                  ),
+                  const SizedBox(height: 20),
+                  MarkdownBody(
+                    data: aiInsight,
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(
+                        fontSize: 15,
+                        color: isDark ? const Color(0xFFB8B9BE) : const Color(0xFF374151),
+                        height: 1.6,
+                        letterSpacing: 0.3,
+                      ),
+                      strong: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFFF6B9D),
+                      ),
+                      listBullet: TextStyle(
+                        color: const Color(0xFFFF6B9D).withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -105,37 +161,17 @@ class AIInsightCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Container(
-                width: 100,
-                height: 24,
-                color: Colors.white,
-              ),
+              Container(width: 100, height: 24, color: Colors.white),
             ],
           ),
           const SizedBox(height: 20),
-          Container(
-            width: double.infinity,
-            height: 16,
-            color: Colors.white,
-          ),
+          Container(width: double.infinity, height: 16, color: Colors.white),
           const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            height: 16,
-            color: Colors.white,
-          ),
+          Container(width: double.infinity, height: 16, color: Colors.white),
           const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            height: 16,
-            color: Colors.white,
-          ),
+          Container(width: double.infinity, height: 16, color: Colors.white),
           const SizedBox(height: 8),
-          Container(
-            width: 200,
-            height: 16,
-            color: Colors.white,
-          ),
+          Container(width: 200, height: 16, color: Colors.white),
         ],
       ),
     );

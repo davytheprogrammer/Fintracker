@@ -32,8 +32,10 @@ class PDFGenerator {
               level: 0,
               child: pw.Text(
                 'Investment Roadmap',
-                style:
-                    pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
               ),
             ),
             pw.SizedBox(height: 20),
@@ -61,11 +63,9 @@ class PDFGenerator {
             pw.Table.fromTextArray(
               headers: ['Phase', 'Start', 'End'],
               data: (roadmapData['investment_timeline'] as List)
-                  .map((phase) => [
-                        phase['phase'],
-                        phase['start'],
-                        phase['end'],
-                      ])
+                  .map(
+                    (phase) => [phase['phase'], phase['start'], phase['end']],
+                  )
                   .toList(),
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
@@ -85,7 +85,8 @@ class PDFGenerator {
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                     ),
                     pw.Text(
-                        '\$${roadmapData['financial_projection']['total_cost']}'),
+                      '\$${roadmapData['financial_projection']['total_cost']}',
+                    ),
                   ],
                 ),
                 pw.TableRow(
@@ -95,7 +96,8 @@ class PDFGenerator {
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                     ),
                     pw.Text(
-                        '\$${roadmapData['financial_projection']['expected_revenue']}'),
+                      '\$${roadmapData['financial_projection']['expected_revenue']}',
+                    ),
                   ],
                 ),
               ],
@@ -107,10 +109,9 @@ class PDFGenerator {
                   (roadmapData['financial_projection']['yearly_growth'] as List)
                       .asMap()
                       .entries
-                      .map((entry) => [
-                            'Year ${entry.key + 1}',
-                            '${entry.value}%',
-                          ])
+                      .map(
+                        (entry) => ['Year ${entry.key + 1}', '${entry.value}%'],
+                      )
                       .toList(),
               cellAlignments: {
                 0: pw.Alignment.centerLeft,
@@ -125,8 +126,8 @@ class PDFGenerator {
                 color: roadmapData['risk_assessment']['score'] == 'low'
                     ? PdfColors.green
                     : roadmapData['risk_assessment']['score'] == 'medium'
-                        ? PdfColors.orange
-                        : PdfColors.red,
+                    ? PdfColors.orange
+                    : PdfColors.red,
               ),
             ),
             pw.Header(level: 2, text: 'Identified Risks'),
