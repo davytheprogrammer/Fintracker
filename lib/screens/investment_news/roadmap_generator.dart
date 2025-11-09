@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import '../../services/user_services.dart';
 import 'error_logger.dart';
 
 class RoadmapGenerator {
@@ -12,8 +12,9 @@ class RoadmapGenerator {
 
   static Future<String> _getCurrencySymbol() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('currencySymbol') ?? 'KES'; // Default to KES
+      final userService = UserService();
+      final userModel = await userService.getCurrentUserData();
+      return userModel.currency?.symbol ?? 'KES'; // Default to KES
     } catch (e) {
       logError('Failed to get currency symbol', e);
       return 'KES'; // Fallback to KES
@@ -94,20 +95,18 @@ class RoadmapGenerator {
     final currencySymbol = await _getCurrencySymbol();
     final currentDate = _getCurrentDate();
 
-    final prompt =
-        '''
+    final prompt = '''
     $strictInstructions
-    
+
     ADDITIONAL INSTRUCTIONS:
     1. Use the current date "$currentDate" when generating timeline dates
-    2. ALWAYS use the currency symbol "KES" (Kenyan Shillings) for all monetary values
-    3. The user's budget is: $budget KES - scale financial projections accordingly
+    2. ALWAYS use the currency symbol "$currencySymbol" for all monetary values
+    3. The user's budget is: $budget $currencySymbol - scale financial projections accordingly
     4. If no specific dates are provided, calculate relative to "$currentDate"
-    5. All financial amounts must be in KES (Kenyan Shillings)
-    
+    5. All financial amounts must be in $currencySymbol
+
     ${_createRoadmapPrompt(idea)}
     ''';
-
     final response = await model.generateContent([Content.text(prompt)]);
     return response.text ?? '{}';
   }
@@ -125,8 +124,7 @@ class RoadmapGenerator {
     Ensure the output is valid JSON that can be parsed by Dart's json.decode().
     ''';
 
-    final prompt =
-        '''
+    final prompt = '''
     $cleaningInstructions
     
     Here is the JSON to fix:
@@ -151,12 +149,14 @@ class RoadmapGenerator {
 
       final currentDate = _getCurrentDate();
 
+      final currencySymbol = await _getCurrencySymbol();
       final response = await model.generateContent([
         Content.text(
           _createFallbackPrompt(
             ideaController.text,
             budgetController.text,
             currentDate,
+            currencySymbol,
           ),
         ),
       ]);
@@ -245,25 +245,26 @@ class RoadmapGenerator {
     String investmentIdea,
     String budget,
     String currentDate,
+    String currencySymbol,
   ) {
     return '''
     Generate a detailed investment roadmap for: $investmentIdea
-    
-    User's Budget: $budget KES (Kenyan Shillings)
+
+    User's Budget: $budget $currencySymbol
     Current Date: $currentDate
-    
+
     Format as comprehensive Markdown with these sections:
     # Executive Summary
     # Timeline and Phases (relative to $currentDate)
-    # Financial Projections (in KES)
+    # Financial Projections (in $currencySymbol)
     # Risk Assessment
     # Market Analysis
     # Implementation Strategy
     # Conclusion
-    
+
     Key Requirements:
-    - All monetary values must be in KES (Kenyan Shillings)
-    - Scale financial projections based on the $budget KES budget
+    - All monetary values must be in $currencySymbol
+    - Scale financial projections based on the $budget $currencySymbol budget
     - Use relative dates from $currentDate
     - Include tables for financial data
     - Use bullet points for clarity

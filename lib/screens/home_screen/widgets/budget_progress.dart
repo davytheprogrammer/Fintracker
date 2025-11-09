@@ -13,10 +13,10 @@ class BudgetConstants {
   static const Color gradientEnd = Color(0xFFF8BBD0); // Slightly darker pink
 
   // Budget status colors
-  static const Color safeColor = Color(0xFF4CAF50); // Material Green
-  static const Color cautionColor = Color(0xFFFFA726); // Material Orange
-  static const Color warningColor = Color(0xFFEF6C00); // Deeper Orange
-  static const Color dangerColor = Color(0xFFD32F2F); // Material Red
+  static const Color safeColor = Color(0xFF4CAF50); // Green
+  static const Color cautionColor = Color(0xFFFFEB3B); // Yellow
+  static const Color warningColor = Color(0xFFFF6B9D); // Secondary color
+  static const Color dangerColor = Color(0xFFEF5350); // Error color
 }
 
 enum BudgetHealthStatus {
@@ -133,7 +133,7 @@ class BudgetProgress extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withOpacity(0.1),
+            color: const Color(0xFF6C63FF).withOpacity(0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),

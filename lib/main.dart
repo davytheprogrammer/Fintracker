@@ -4,8 +4,12 @@ import 'package:Finspense/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
 import 'screens/home_screen/home.dart';
+import 'screens/onboarding/onboarding_wrapper.dart';
+import 'screens/onboarding/onboarding_provider.dart';
 import 'wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'providers/user_provider.dart';
+import 'providers/transaction_provider.dart';
 
 class Routes {
   static const String app = '/app';
@@ -17,8 +21,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -61,7 +69,11 @@ class MyApp extends StatelessWidget {
             routes: {
               Routes.app: (context) => const App(),
               Routes.wrapper: (context) => const Wrapper(),
-              Routes.home: (context) => HomePage(),
+              Routes.home: (context) => const HomePage(),
+              '/onboarding': (context) => ChangeNotifierProvider(
+                    create: (_) => OnboardingProvider(),
+                    child: const OnboardingWrapper(),
+                  ),
             },
             debugShowCheckedModeBanner: false,
           );
@@ -87,12 +99,10 @@ final ThemeData lightTheme = ThemeData(
     secondaryContainer: Color(0xFFFF8FB5),
     tertiary: Color(0xFF4CAF50),
     error: Color(0xFFEF5350),
-    background: Color(0xFFF8F9FA),
     surface: Color(0xFFFFFFFF),
-    surfaceVariant: Color(0xFFF5F5F7),
+    surfaceContainerHighest: Color(0xFFF5F5F7),
     onPrimary: Colors.white,
     onSecondary: Colors.white,
-    onBackground: Color(0xFF1A1A1A),
     onSurface: Color(0xFF1A1A1A),
     outline: Color(0xFFE5E7EB),
   ),
@@ -303,12 +313,10 @@ final ThemeData darkTheme = ThemeData(
     secondaryContainer: Color(0xFFFF6B9D),
     tertiary: Color(0xFF81C784),
     error: Color(0xFFE57373),
-    background: Color(0xFF0F0F1E),
     surface: Color(0xFF1A1A2E),
-    surfaceVariant: Color(0xFF252537),
+    surfaceContainerHighest: Color(0xFF252537),
     onPrimary: Colors.white,
     onSecondary: Colors.white,
-    onBackground: Color(0xFFFFFFFF),
     onSurface: Color(0xFFFFFFFF),
     outline: Color(0xFF2C2C3E),
   ),

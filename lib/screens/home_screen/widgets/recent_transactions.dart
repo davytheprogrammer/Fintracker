@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Constants for better maintainability
 const int kInitialTransactionsCount = 5;
@@ -138,7 +137,13 @@ class RecentTransactions extends StatelessWidget {
   }
 
   DateTime _getTransactionDate(Map<String, dynamic> tx) {
-    return (tx['date'] as Timestamp?)?.toDate() ?? DateTime.now();
+    final dateValue = tx['date'];
+    if (dateValue is DateTime) {
+      return dateValue;
+    } else if (dateValue is String) {
+      return DateTime.parse(dateValue);
+    }
+    return DateTime.now();
   }
 
   Widget _buildTransactionItem(Map<String, dynamic> tx) {
@@ -226,6 +231,16 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
   String _searchQuery = '';
   String _selectedFilter = 'all';
 
+  DateTime _getTransactionDate(Map<String, dynamic> tx) {
+    final dateValue = tx['date'];
+    if (dateValue is DateTime) {
+      return dateValue;
+    } else if (dateValue is String) {
+      return DateTime.parse(dateValue);
+    }
+    return DateTime.now();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -242,11 +257,10 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
     return widget.transactions.where((tx) {
       final matchesSearch =
           (tx['description'] as String?)?.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          ) ??
-          false;
-      final matchesFilter =
-          _selectedFilter == 'all' ||
+                    _searchQuery.toLowerCase(),
+                  ) ??
+              false;
+      final matchesFilter = _selectedFilter == 'all' ||
           (tx['type'] as String?)?.toLowerCase() == _selectedFilter;
       return matchesSearch && matchesFilter;
     }).toList();
@@ -254,8 +268,8 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
 
   @override
   Widget build(BuildContext context) {
-    final totalPages = (filteredTransactions.length / kTransactionsPerPage)
-        .ceil();
+    final totalPages =
+        (filteredTransactions.length / kTransactionsPerPage).ceil();
     final displayedTransactions = filteredTransactions.skip(
       _currentPage * kTransactionsPerPage,
     );
@@ -378,9 +392,8 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
         children: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed: _currentPage > 0
-                ? () => setState(() => _currentPage--)
-                : null,
+            onPressed:
+                _currentPage > 0 ? () => setState(() => _currentPage--) : null,
           ),
           Text(
             'Page ${_currentPage + 1} of $totalPages',
@@ -420,7 +433,7 @@ class _AllTransactionsModalState extends State<AllTransactionsModal> {
   }
 
   Widget _buildTransactionItem(Map<String, dynamic> tx) {
-    final date = (tx['date'] as Timestamp?)?.toDate() ?? DateTime.now();
+    final date = _getTransactionDate(tx);
     final isIncome = tx['type'] == 'income';
     final icon = isIncome ? Icons.arrow_upward : Icons.arrow_downward;
     final color = isIncome ? Colors.green : Colors.red;

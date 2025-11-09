@@ -42,9 +42,6 @@ dependencies:
 
   flutter_local_notifications: ^19.0.0
 
-  
-
-
   firebase_core: ^2.24.2
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.15.6
@@ -55,11 +52,16 @@ dependencies:
 
   flutter_map: ^6.1.0
 
+  intl: any
+  path_provider: any
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^2.0.3
+  mockito: ^5.4.4
+  build_runner: ^2.4.8
 
 flutter:
   uses-material-design: true

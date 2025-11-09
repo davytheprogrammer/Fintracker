@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -20,29 +22,6 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     _loadNotificationSettings();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showCountrySupportDialog();
-    });
-  }
-
-  void _showCountrySupportDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text("Service Availability"),
-        content: Text(
-          "Our app is currently only supported in Kenya. We will upgrade with support for other countries in Q2 of 2025.",
-          style: TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("OK"),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _loadNotificationSettings() async {
@@ -54,10 +33,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
       // Also load from Firestore if available
       if (currentUser != null) {
-        final userDoc = await _firestore
-            .collection('users')
-            .doc(currentUser!.uid)
-            .get();
+        final userDoc =
+            await _firestore.collection('users').doc(currentUser!.uid).get();
 
         if (userDoc.exists) {
           setState(() {
@@ -75,7 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (_feedbackController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Please enter your feedback')));
+      ).showSnackBar(const SnackBar(content: Text('Please enter your feedback')));
       return;
     }
 
@@ -92,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _feedbackController.clear();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Thank you for your feedback!')));
+      ).showSnackBar(const SnackBar(content: Text('Thank you for your feedback!')));
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -122,7 +99,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating notification settings')),
+        const SnackBar(content: Text('Error updating notification settings')),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -149,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
       Navigator.pop(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Password updated successfully')));
+      ).showSnackBar(const SnackBar(content: Text('Password updated successfully')));
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'An error occurred';
       if (e.code == 'wrong-password') {
@@ -169,7 +146,7 @@ class _SettingsPageState extends State<SettingsPage> {
     if (confirmText != 'DELETE') {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Please type DELETE to confirm')));
+      ).showSnackBar(const SnackBar(content: Text('Please type DELETE to confirm')));
       return;
     }
 
@@ -215,16 +192,16 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Re-authenticate Required"),
+        title: const Text("Re-authenticate Required"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Please enter your password to continue"),
-            SizedBox(height: 16),
+            const Text("Please enter your password to continue"),
+            const SizedBox(height: 16),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Password",
                 border: OutlineInputBorder(),
               ),
@@ -233,11 +210,11 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         actions: [
           TextButton(
-            child: Text("CANCEL"),
+            child: const Text("CANCEL"),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text("CONFIRM"),
+            child: const Text("CONFIRM"),
             onPressed: () async {
               try {
                 AuthCredential credential = EmailAuthProvider.credential(
@@ -251,7 +228,7 @@ class _SettingsPageState extends State<SettingsPage> {
               } catch (e) {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(SnackBar(content: Text('Invalid password')));
+                ).showSnackBar(const SnackBar(content: Text('Invalid password')));
               }
             },
           ),
@@ -274,16 +251,16 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(icon: Icon(Icons.logout), onPressed: () => _logout()),
+          IconButton(icon: const Icon(Icons.logout), onPressed: () => _logout()),
         ],
         backgroundColor: Colors.white, // Light pink gradient
         elevation: 0,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Color(0xFFFFF0F5), Color(0xFFFFF9FB)],
               begin: Alignment.topLeft,
@@ -305,10 +282,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             child: ListView(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               children: [
                 _buildUserInfo(),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 _buildSection(
                   title: "Account & Privacy",
                   children: [
@@ -330,7 +307,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 _buildSection(
                   title: "Help & Feedback",
                   children: [
@@ -348,7 +325,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 _buildSection(
                   title: "Danger Zone",
                   children: [
@@ -367,7 +344,7 @@ class _SettingsPageState extends State<SettingsPage> {
           if (_isLoading)
             Container(
               color: Colors.black54,
-              child: Center(child: CircularProgressIndicator()),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -378,16 +355,16 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Send Feedback"),
+        title: const Text("Send Feedback"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("We'd love to hear your feedback!"),
-            SizedBox(height: 16),
+            const Text("We'd love to hear your feedback!"),
+            const SizedBox(height: 16),
             TextField(
               controller: _feedbackController,
               maxLines: 5,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: "Tell us what you think...",
                 border: OutlineInputBorder(),
               ),
@@ -397,14 +374,14 @@ class _SettingsPageState extends State<SettingsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("CANCEL"),
+            child: const Text("CANCEL"),
           ),
           TextButton(
             onPressed: () {
               _submitFeedback();
               Navigator.pop(context);
             },
-            child: Text("SUBMIT"),
+            child: const Text("SUBMIT"),
           ),
         ],
       ),
@@ -415,17 +392,17 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Help Center"),
+        title: const Text("Help Center"),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Frequently Asked Questions",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _buildHelpItem(
                 question: "How do I change my password?",
                 answer: "Go to Password Manager in Account & Privacy settings.",
@@ -439,21 +416,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 answer:
                     "Yes, we use industry-standard encryption to protect your data.",
               ),
-              Divider(),
-              SizedBox(height: 8),
-              Text(
+              const Divider(),
+              const SizedBox(height: 8),
+              const Text(
                 "Need more help?",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
-              Text("Contact our support team at support@example.com"),
+              const SizedBox(height: 8),
+              const Text("Contact our support team at support@example.com"),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("CLOSE"),
+            child: const Text("CLOSE"),
           ),
         ],
       ),
@@ -466,8 +443,8 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(question, style: TextStyle(fontWeight: FontWeight.w500)),
-          SizedBox(height: 4),
+          Text(question, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 4),
           Text(answer),
         ],
       ),
@@ -477,21 +454,19 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildUserInfo() {
     final user = FirebaseAuth.instance.currentUser;
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: user?.photoURL != null
-                  ? NetworkImage(user!.photoURL!)
-                  : null,
-              child: user?.photoURL == null
-                  ? Icon(Icons.person, size: 30)
-                  : null,
+              backgroundImage:
+                  user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
+              child:
+                  user?.photoURL == null ? const Icon(Icons.person, size: 30) : null,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -500,7 +475,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     user?.displayName ?? 'User',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     user?.email ?? '',
                     style: Theme.of(context).textTheme.bodyMedium,
@@ -522,13 +497,13 @@ class _SettingsPageState extends State<SettingsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 16, bottom: 8),
+          padding: const EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
           ),
         ),
         ...children,
@@ -547,13 +522,13 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
 
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         leading: Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: (iconColor ?? theme.colorScheme.primary).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
@@ -572,8 +547,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: theme.textTheme.bodySmall?.color,
           ),
         ),
-        trailing:
-            trailing ??
+        trailing: trailing ??
             Icon(
               Icons.arrow_forward_ios,
               size: 16,
@@ -591,23 +565,23 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Change Password"),
+        title: const Text("Change Password"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: currentPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Current Password",
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: newPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "New Password",
                 border: OutlineInputBorder(),
               ),
@@ -616,11 +590,11 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         actions: [
           TextButton(
-            child: Text("CANCEL"),
+            child: const Text("CANCEL"),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text("UPDATE"),
+            child: const Text("UPDATE"),
             onPressed: () => _updatePassword(
               currentPasswordController.text,
               newPasswordController.text,
@@ -638,35 +612,35 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Delete Account", style: TextStyle(color: Colors.red)),
+        title: const Text("Delete Account", style: TextStyle(color: Colors.red)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            const Text(
               "We're sorry to see you go. Please share your feedback with us:",
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: feedbackController,
               maxLines: 3,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Your feedback (optional)",
                 hintText: "What made you decide to leave?",
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 24),
-            Divider(),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+            const Text(
               "Are you sure you want to delete your account? "
               "This action cannot be undone and all your data will be permanently removed.",
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: confirmController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: "Type 'DELETE' to confirm",
                 border: OutlineInputBorder(),
               ),
@@ -675,11 +649,11 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         actions: [
           TextButton(
-            child: Text("CANCEL"),
+            child: const Text("CANCEL"),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text("DELETE ACCOUNT", style: TextStyle(color: Colors.red)),
+            child: const Text("DELETE ACCOUNT", style: TextStyle(color: Colors.red)),
             onPressed: () => _deleteAccount(confirmController.text),
           ),
         ],

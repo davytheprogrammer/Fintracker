@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -7,7 +6,7 @@ class ExpenseChart extends StatefulWidget {
   final List<Map<String, dynamic>> transactions;
   final String Function(double) formatCurrency;
 
-  ExpenseChart({required this.transactions, required this.formatCurrency});
+  const ExpenseChart({super.key, required this.transactions, required this.formatCurrency});
 
   @override
   _ExpenseChartState createState() => _ExpenseChartState();
@@ -24,7 +23,7 @@ class _ExpenseChartState extends State<ExpenseChart>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
     _animation = CurvedAnimation(
       parent: _animationController,
@@ -56,17 +55,17 @@ class _ExpenseChartState extends State<ExpenseChart>
 
     // Define muted pastel colors similar to the example image
     final Map<String, Color> categoryColors = {
-      'Shopping': Color(0xFF673AB7),
-      'Health': Color(0xFF9C27B0),
-      'Invest': Color(0xFFB39DDB),
-      'Tax': Color(0xFFD1C4E9),
-      'Charity': Color(0xFFE1BEE7),
-      'Food': Color(0xFF3F51B5),
-      'Transport': Color(0xFF2196F3),
-      'Rent': Color(0xFF4CAF50),
-      'Utilities': Color(0xFF8BC34A),
-      'Entertainment': Color(0xFFFFC107),
-      'Other': Color(0xFF9E9E9E),
+      'Shopping': const Color(0xFF673AB7),
+      'Health': const Color(0xFF9C27B0),
+      'Invest': const Color(0xFFB39DDB),
+      'Tax': const Color(0xFFD1C4E9),
+      'Charity': const Color(0xFFE1BEE7),
+      'Food': const Color(0xFF3F51B5),
+      'Transport': const Color(0xFF2196F3),
+      'Rent': const Color(0xFF4CAF50),
+      'Utilities': const Color(0xFF8BC34A),
+      'Entertainment': const Color(0xFFFFC107),
+      'Other': const Color(0xFF9E9E9E),
     };
 
     // Sort categories by expense amount (descending)
@@ -84,7 +83,7 @@ class _ExpenseChartState extends State<ExpenseChart>
           ? (amount / totalExpense) * 100
           : 0;
 
-      final Color color = categoryColors[category] ?? Color(0xFF9E9E9E);
+      final Color color = categoryColors[category] ?? const Color(0xFF9E9E9E);
 
       final isTouched = sortedCategories.indexOf(entry) == touchedIndex;
       final double radius = isTouched ? 25 : 20; // Thin donut
@@ -95,7 +94,7 @@ class _ExpenseChartState extends State<ExpenseChart>
           value: amount,
           title: '', // No text on the chart segments
           radius: radius,
-          titleStyle: TextStyle(
+          titleStyle: const TextStyle(
             fontSize: 0,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -105,8 +104,8 @@ class _ExpenseChartState extends State<ExpenseChart>
     }
 
     return Container(
-      margin: EdgeInsets.all(16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -114,14 +113,14 @@ class _ExpenseChartState extends State<ExpenseChart>
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -142,16 +141,16 @@ class _ExpenseChartState extends State<ExpenseChart>
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           AnimatedBuilder(
             animation: _animation,
             builder: (context, child) {
               return Opacity(
                 opacity: _animation.value,
-                child: Container(
+                child: SizedBox(
                   height: 200,
                   child: sections.isEmpty
-                      ? Center(
+                      ? const Center(
                           child: Text(
                             'No expense data available',
                             style: TextStyle(
@@ -201,7 +200,7 @@ class _ExpenseChartState extends State<ExpenseChart>
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
+                                const Text(
                                   'Monthly Expenses',
                                   style: TextStyle(
                                     color: Colors.black54,
@@ -209,10 +208,10 @@ class _ExpenseChartState extends State<ExpenseChart>
                                     fontWeight: FontWeight.normal,
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   widget.formatCurrency(totalExpense),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black87,
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -226,14 +225,14 @@ class _ExpenseChartState extends State<ExpenseChart>
               );
             },
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 16,
             runSpacing: 12,
             children: sortedCategories.take(5).map((entry) {
               final String category = entry.key;
               final double amount = entry.value;
-              final Color color = categoryColors[category] ?? Color(0xFF9E9E9E);
+              final Color color = categoryColors[category] ?? const Color(0xFF9E9E9E);
 
               return Row(
                 mainAxisSize: MainAxisSize.min,
@@ -247,19 +246,19 @@ class _ExpenseChartState extends State<ExpenseChart>
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Text(
                     category,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 12,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     widget.formatCurrency(amount),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

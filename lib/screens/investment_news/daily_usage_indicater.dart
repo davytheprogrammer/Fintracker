@@ -6,7 +6,7 @@ class DailyUsageIndicator extends StatelessWidget {
   final bool isDarkMode;
   final ThemeData theme;
 
-  const DailyUsageIndicator({
+  const DailyUsageIndicator({super.key, 
     required this.dailyUsageCount,
     required this.maxDailyRoadmaps,
     required this.isDarkMode,
@@ -16,7 +16,7 @@ class DailyUsageIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey.shade800 : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -24,14 +24,14 @@ class DailyUsageIndicator extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          const Text(
             'Daily Roadmaps Generated:',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -39,7 +39,7 @@ class DailyUsageIndicator extends StatelessWidget {
             children: List.generate(
               maxDailyRoadmaps,
               (index) => Container(
-                margin: EdgeInsets.symmetric(horizontal: 4),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(

@@ -21,7 +21,7 @@ class PDFGenerator {
         pw.MultiPage(
           pageTheme: pw.PageTheme(
             pageFormat: PdfPageFormat.a4,
-            margin: pw.EdgeInsets.all(32),
+            margin: const pw.EdgeInsets.all(32),
             theme: pw.ThemeData.withFont(
               base: pw.Font.helvetica(),
               bold: pw.Font.helveticaBold(),
@@ -68,7 +68,7 @@ class PDFGenerator {
                   )
                   .toList(),
               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-              headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+              headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
               cellAlignments: {
                 0: pw.Alignment.centerLeft,
                 1: pw.Alignment.center,

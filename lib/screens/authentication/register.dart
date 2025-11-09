@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../home_screen/home.dart';
-
 class Register extends StatefulWidget {
   final Function toggleView;
   const Register({Key? key, required this.toggleView}) : super(key: key);
@@ -21,7 +19,6 @@ class _RegisterState extends State<Register> {
   String _nickname = '';
   String _email = '';
   String _password = '';
-  String _confirmPassword = '';
   String _error = '';
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -31,11 +28,11 @@ class _RegisterState extends State<Register> {
     if (_formKey.currentState!.validate()) {
       setState(() => _loading = true);
       try {
-        final UserCredential result = await _auth
-            .createUserWithEmailAndPassword(
-              email: _email.trim(),
-              password: _password,
-            );
+        final UserCredential result =
+            await _auth.createUserWithEmailAndPassword(
+          email: _email.trim(),
+          password: _password,
+        );
 
         if (result.user != null) {
           await _firestore.collection('users').doc(result.user!.uid).set({
@@ -43,11 +40,7 @@ class _RegisterState extends State<Register> {
             'createdAt': FieldValue.serverTimestamp(),
           });
 
-          // Navigate to HomePage after successful registration
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
+          // Registration successful, wrapper will handle navigation
         }
       } on FirebaseAuthException catch (e) {
         setState(() {
@@ -80,21 +73,21 @@ class _RegisterState extends State<Register> {
                       height: 120,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFF9A9E), Color(0xFFFAD0C4)],
+                          colors: [Color(0xFF6C63FF), Color(0xFF8B85FF)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.pink.shade100,
+                            color: const Color(0xFF6C63FF).withOpacity(0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: const Icon(
-                        Icons.person_outline,
+                        Icons.account_balance_wallet_rounded,
                         size: 60,
                         color: Colors.white,
                       ),
@@ -107,7 +100,9 @@ class _RegisterState extends State<Register> {
                     children: [
                       Text(
                         'Create Account',
-                        style: Theme.of(context).textTheme.headlineMedium
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -118,9 +113,9 @@ class _RegisterState extends State<Register> {
                       Text(
                         'Please fill in the details to get started',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[600],
-                          letterSpacing: 0.3,
-                        ),
+                              color: Colors.grey[600],
+                              letterSpacing: 0.3,
+                            ),
                       ),
                     ],
                   ),
@@ -188,8 +183,9 @@ class _RegisterState extends State<Register> {
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
-                      if (val?.isEmpty ?? true)
+                      if (val?.isEmpty ?? true) {
                         return 'Please enter your email';
+                      }
                       if (!RegExp(
                         r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                       ).hasMatch(val!)) {
@@ -290,7 +286,7 @@ class _RegisterState extends State<Register> {
                     validator: (val) => val?.isEmpty ?? true
                         ? 'Please confirm your password'
                         : null,
-                    onChanged: (val) => setState(() => _confirmPassword = val),
+                    onChanged: (val) => setState(() => {}),
                   ),
                   const SizedBox(height: 20),
 
@@ -299,12 +295,13 @@ class _RegisterState extends State<Register> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.pink[50],
+                        color: const Color(0xFFEF5350).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         _error,
-                        style: TextStyle(color: Colors.pink[700], fontSize: 14),
+                        style: const TextStyle(
+                            color: Color(0xFFEF5350), fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -316,13 +313,13 @@ class _RegisterState extends State<Register> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.pink.shade100,
+                          color: const Color(0xFF6C63FF).withOpacity(0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
-                      gradient: LinearGradient(
-                        colors: [Colors.pink.shade300, Colors.pink.shade200],
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF8B85FF)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),

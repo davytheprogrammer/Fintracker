@@ -363,11 +363,11 @@ class CategoryDonutChart extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Amount',
                     style: TextStyle(
                       fontSize: 12,
-                      color: const Color(0xFF6B7280),
+                      color: Color(0xFF6B7280),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -385,11 +385,11 @@ class CategoryDonutChart extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
+                  const Text(
                     'Percentage',
                     style: TextStyle(
                       fontSize: 12,
-                      color: const Color(0xFF6B7280),
+                      color: Color(0xFF6B7280),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

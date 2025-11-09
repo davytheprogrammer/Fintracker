@@ -1,7 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../models/transaction_model.dart';
+import '../../providers/transaction_provider.dart';
 
 // Custom color scheme
 const kPrimaryColor = Color(0xFFF8BBD0); // Light pink
@@ -12,9 +14,13 @@ const kBackgroundColor = Color(0xFFFAFAFA); // Almost white background
 
 class TransactionFormPage extends StatefulWidget {
   final bool isIncome;
+  final String currencySymbol;
 
-  const TransactionFormPage({Key? key, required this.isIncome})
-    : super(key: key);
+  const TransactionFormPage({
+    Key? key,
+    required this.isIncome,
+    this.currencySymbol = 'KES',
+  }) : super(key: key);
 
   @override
   _TransactionFormPageState createState() => _TransactionFormPageState();
@@ -27,7 +33,9 @@ class _TransactionFormPageState extends State<TransactionFormPage>
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Providers
+  late TransactionProvider _transactionProvider;
 
   double _amount = 0;
   String _description = '';
@@ -63,15 +71,20 @@ class _TransactionFormPageState extends State<TransactionFormPage>
     _category = widget.isIncome
         ? _incomeCategories[0]['name']
         : _expenseCategories[0]['name'];
+
+    // Initialize providers
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _transactionProvider =
+          Provider.of<TransactionProvider>(context, listen: false);
+    });
   }
 
   List<Map<String, dynamic>> get _categories {
     return widget.isIncome ? _incomeCategories : _expenseCategories;
   }
 
-  // Keeping all existing methods unchanged
+  // Modified to use Firestore services
   Future<void> _saveTransaction() async {
-    // Existing save transaction logic remains the same
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       setState(() {
@@ -81,40 +94,21 @@ class _TransactionFormPageState extends State<TransactionFormPage>
       try {
         final user = _auth.currentUser;
         if (user != null) {
-          await _firestore.collection('transactions').add({
-            'userId': user.uid,
-            'type': widget.isIncome ? 'income' : 'expense',
-            'category': _category,
-            'amount': _amount,
-            'description': _description,
-            'date': Timestamp.fromDate(_date),
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+          // Create transaction model using Firebase UID directly
+          final transaction = TransactionModel(
+            uid: user.uid,
+            type: widget.isIncome ? 'income' : 'expense',
+            category: _category,
+            amount: _amount,
+            description: _description,
+            date: _date,
+          );
 
-          DocumentReference userRef = _firestore
-              .collection('users')
-              .doc(user.uid);
+          // Save transaction using TransactionProvider
+          final success =
+              await _transactionProvider.addTransaction(transaction);
 
-          await _firestore.runTransaction((transaction) async {
-            DocumentSnapshot userDoc = await transaction.get(userRef);
-
-            if (!userDoc.exists) {
-              transaction.set(userRef, {
-                'balance': _amount * (widget.isIncome ? 1 : -1),
-                'lastUpdated': FieldValue.serverTimestamp(),
-              });
-            } else {
-              double currentBalance =
-                  (userDoc.data() as Map<String, dynamic>)['balance'] ?? 0;
-              transaction.update(userRef, {
-                'balance':
-                    currentBalance + (_amount * (widget.isIncome ? 1 : -1)),
-                'lastUpdated': FieldValue.serverTimestamp(),
-              });
-            }
-          });
-
-          if (mounted) {
+          if (success && mounted) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -170,8 +164,7 @@ class _TransactionFormPageState extends State<TransactionFormPage>
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: kTextColor,
-            ),
-            dialogBackgroundColor: Colors.white,
+            ), dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );
@@ -246,7 +239,7 @@ class _TransactionFormPageState extends State<TransactionFormPage>
                             color: kTextColor,
                           ),
                           decoration: InputDecoration(
-                            prefixText: 'KES ',
+                            prefixText: '${widget.currencySymbol} ',
                             prefixStyle: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -318,9 +311,8 @@ class _TransactionFormPageState extends State<TransactionFormPage>
                                 duration: const Duration(milliseconds: 200),
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? kAccentColor
-                                      : Colors.white,
+                                  color:
+                                      isSelected ? kAccentColor : Colors.white,
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(

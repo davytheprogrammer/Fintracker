@@ -5,7 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 class MarkdownSection extends StatelessWidget {
   final Map<String, dynamic> roadmapData;
 
-  const MarkdownSection({required this.roadmapData});
+  const MarkdownSection({super.key, required this.roadmapData});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class MarkdownSection extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.download),
+                  icon: const Icon(Icons.download),
                   onPressed: () {},
                   tooltip: 'Download markdown file',
                 ),
@@ -63,13 +63,13 @@ class MarkdownSection extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  h3: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  p: TextStyle(fontSize: 14, height: 1.5),
-                  a: TextStyle(
+                  h3: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  p: const TextStyle(fontSize: 14, height: 1.5),
+                  a: const TextStyle(
                     color: Colors.blue,
                     decoration: TextDecoration.underline,
                   ),
-                  listBullet: TextStyle(fontSize: 14, height: 1.5),
+                  listBullet: const TextStyle(fontSize: 14, height: 1.5),
                   code: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 13,
@@ -133,7 +133,7 @@ class MarkdownSection extends StatelessWidget {
 class TimelineSection extends StatelessWidget {
   final Map<String, dynamic> roadmapData;
 
-  const TimelineSection({required this.roadmapData});
+  const TimelineSection({super.key, required this.roadmapData});
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +224,7 @@ class TimelineSection extends StatelessWidget {
 class FinancialBreakdown extends StatelessWidget {
   final Map<String, dynamic> roadmapData;
 
-  const FinancialBreakdown({required this.roadmapData});
+  const FinancialBreakdown({super.key, required this.roadmapData});
 
   @override
   Widget build(BuildContext context) {
@@ -372,11 +372,11 @@ class FinancialBreakdown extends StatelessWidget {
                               },
                             ),
                           ),
-                          rightTitles: AxisTitles(
+                          rightTitles: const AxisTitles(
                             sideTitles: SideTitles(showTitles: false),
                           ),
-                          topTitles: AxisTitles(
-                            sideTitles: const SideTitles(showTitles: false),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
                           ),
                         ),
                         borderData: FlBorderData(show: false),
@@ -403,7 +403,7 @@ class FinancialBreakdown extends StatelessWidget {
                             .toList(),
                       ),
                     )
-                  : Center(
+                  : const Center(
                       child: Text(
                         'No growth data available',
                         style: TextStyle(
@@ -423,7 +423,7 @@ class FinancialBreakdown extends StatelessWidget {
 class RiskAssessment extends StatelessWidget {
   final Map<String, dynamic> roadmapData;
 
-  const RiskAssessment({required this.roadmapData});
+  const RiskAssessment({super.key, required this.roadmapData});
 
   @override
   Widget build(BuildContext context) {

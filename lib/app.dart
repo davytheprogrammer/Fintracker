@@ -16,14 +16,13 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   late AnimationController _animationController;
-  late Animation<double> _animation;
 
   static final List<Widget> _pages = [
     const HomePage(),
     const AIAnalyticsPage(),
     const GoalsPage(),
-    InvestmentsPage(),
-    SettingsPage(),
+    const InvestmentsPage(),
+    const SettingsPage(),
   ];
 
   @override
@@ -32,10 +31,6 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
     );
     _animationController.forward();
   }
@@ -106,12 +101,10 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
   Widget _buildModernNavItem(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = isDark
-        ? const Color(0xFF8B85FF)
-        : const Color(0xFF6C63FF);
-    final inactiveColor = isDark
-        ? const Color(0xFF8A8A8E)
-        : const Color(0xFF9CA3AF);
+    final primaryColor =
+        isDark ? const Color(0xFF8B85FF) : const Color(0xFF6C63FF);
+    final inactiveColor =
+        isDark ? const Color(0xFF8A8A8E) : const Color(0xFF9CA3AF);
 
     return Expanded(
       child: GestureDetector(
@@ -123,9 +116,8 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: isSelected
-                ? primaryColor.withOpacity(0.1)
-                : Colors.transparent,
+            color:
+                isSelected ? primaryColor.withOpacity(0.1) : Colors.transparent,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

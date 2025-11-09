@@ -1,25 +1,35 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../repositories/user_repository.dart';
+import '../models/user_model.dart';
 
 class DatabaseService {
   final String? uid;
   DatabaseService({this.uid});
 
-  // collection reference:
-  final CollectionReference userCollection = FirebaseFirestore.instance
-      .collection('users');
+  final UserRepository _userRepository = UserRepository();
 
   Future updateUserData(String? displayName, String? email, String type) async {
-    return await userCollection.doc(uid).set({
-      'displayName': displayName,
-      'email': email,
-      'type': type, // P-Patient or T-Therapist
-      'sober_days': null,
-      'last_checked_in': null,
-    });
+    if (uid == null) return;
+
+    // Create or update user profile using UserRepository with direct Firestore queries
+    final userModel = UserModel(
+      uid: uid!,
+      goals: [],
+      currency: Currency(code: 'KES', symbol: 'KES'),
+      incomeRange: 'Not specified',
+      ageRange: 'Not specified',
+      occupation: displayName ?? 'Not specified',
+      location: Location(country: 'Kenya', city: 'Nairobi'),
+      riskTolerance: 'Moderate',
+    );
+
+    await _userRepository.createOrUpdateUser(userModel);
   }
 
-  // get users stream
-  Stream<QuerySnapshot> get users {
-    return userCollection.snapshots();
+  // Stream user data from Firestore
+  Stream<UserModel?> get users {
+    if (uid == null) {
+      return Stream.value(null);
+    }
+    return _userRepository.streamUserData(uid!);
   }
 }

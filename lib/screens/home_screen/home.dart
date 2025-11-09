@@ -125,18 +125,15 @@ class _HomePageState extends State<HomePage>
 
   Future<void> _ensureTransactionsCollection(String userId) async {
     try {
-      final transactionsRef = _firestore.collection('transactions');
-      final snapshot = await transactionsRef
-          .where('userId', isEqualTo: userId)
-          .limit(1)
-          .get();
+      final transactionsRef =
+          _firestore.collection('users').doc(userId).collection('transactions');
+      final snapshot = await transactionsRef.limit(1).get();
 
       if (snapshot.docs.isEmpty) {
         await transactionsRef.add({
-          'userId': userId,
           'amount': 0,
           'type': 'income',
-          'date': DateTime.now(),
+          'date': DateTime.now().toIso8601String(),
           'description': 'Initial setup',
           'category': 'other',
           'createdAt': FieldValue.serverTimestamp(),
@@ -476,8 +473,9 @@ class _HomePageState extends State<HomePage>
 
     return StreamBuilder<QuerySnapshot>(
       stream: _firestore
+          .collection('users')
+          .doc(user.uid)
           .collection('transactions')
-          .where('userId', isEqualTo: user.uid)
           .orderBy('date', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
@@ -599,6 +597,7 @@ class _HomePageState extends State<HomePage>
         physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         children: [
+          const SizedBox(height: 16), // Small space between app bar and balance card
           BalanceCard(
             totalBalance: _financeData.value.totalBalance,
             totalIncome: _financeData.value.totalIncome,

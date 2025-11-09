@@ -7,6 +7,7 @@ class InvestmentIdeaInput extends StatefulWidget {
   final VoidCallback onGenerateRoadmap;
   final bool isDarkMode;
   final ThemeData theme;
+  final String currencySymbol;
 
   const InvestmentIdeaInput({
     Key? key,
@@ -16,6 +17,7 @@ class InvestmentIdeaInput extends StatefulWidget {
     required this.onGenerateRoadmap,
     required this.isDarkMode,
     required this.theme,
+    this.currencySymbol = 'KES',
   }) : super(key: key);
 
   @override
@@ -34,8 +36,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
   }
 
   void _validateIdea() {
-    final isValid =
-        widget.ideaController.text.length >= 15 &&
+    final isValid = widget.ideaController.text.length >= 15 &&
         widget.ideaController.text.split(' ').length >= 10;
     if (isValid != _isIdeaValid) {
       setState(() => _isIdeaValid = isValid);
@@ -43,8 +44,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
   }
 
   void _validateBudget() {
-    final isValid =
-        widget.budgetController.text.isNotEmpty &&
+    final isValid = widget.budgetController.text.isNotEmpty &&
         double.tryParse(widget.budgetController.text) != null;
     if (isValid != _isBudgetValid) {
       setState(() => _isBudgetValid = isValid);
@@ -82,7 +82,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -91,11 +91,11 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Describe Your Investment Idea',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextFormField(
               controller: widget.ideaController,
               decoration: InputDecoration(
@@ -120,14 +120,14 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                 fillColor: widget.isDarkMode
                     ? Colors.grey.shade900
                     : Colors.grey.shade50,
-                contentPadding: EdgeInsets.all(16),
+                contentPadding: const EdgeInsets.all(16),
                 errorText: _getIdeaError(),
                 suffixIcon: _isIdeaValid
-                    ? Icon(Icons.check_circle, color: Colors.green)
+                    ? const Icon(Icons.check_circle, color: Colors.green)
                     : null,
               ),
               maxLines: 4,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
               onChanged: (_) => setState(() {}),
             ),
             Padding(
@@ -139,7 +139,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                     size: 16,
                     color: _isIdeaValid ? Colors.green : Colors.grey,
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     'Minimum 15 characters and 10 words',
                     style: TextStyle(
@@ -150,12 +150,12 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Input Budget (\\KES)',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              'Input Budget (${widget.currencySymbol})',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextFormField(
               controller: widget.budgetController,
               keyboardType: TextInputType.number,
@@ -180,16 +180,16 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                 fillColor: widget.isDarkMode
                     ? Colors.grey.shade900
                     : Colors.grey.shade50,
-                contentPadding: EdgeInsets.all(16),
+                contentPadding: const EdgeInsets.all(16),
                 errorText: _getBudgetError(),
                 suffixIcon: _isBudgetValid
-                    ? Icon(Icons.check_circle, color: Colors.green)
+                    ? const Icon(Icons.check_circle, color: Colors.green)
                     : null,
               ),
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
               onChanged: (_) => setState(() {}),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -202,7 +202,7 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 child: widget.isLoading
                     ? Row(
@@ -216,14 +216,14 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                               strokeWidth: 2,
                             ),
                           ),
-                          SizedBox(width: 12),
-                          Text(
+                          const SizedBox(width: 12),
+                          const Text(
                             'Generating Roadmap...',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
                       )
-                    : Text(
+                    : const Text(
                         'Generate Investment Roadmap',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,

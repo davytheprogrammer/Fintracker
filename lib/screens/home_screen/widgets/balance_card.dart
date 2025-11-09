@@ -214,21 +214,67 @@ class _BalanceCardState extends State<BalanceCard>
       return _buildShimmer();
     }
 
-    return Text(
-      widget.formatCurrency(widget.totalBalance),
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 36,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.5,
-        shadows: [
-          Shadow(
-            color: Colors.black26,
-            blurRadius: 8,
-            offset: Offset(0, 3),
+    final isNegative = widget.totalBalance < 0;
+    final balanceColor = isNegative ? Colors.red.shade400 : Colors.white;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (isNegative) ...[
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.red.shade500.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red.shade300,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+        Text(
+          widget.formatCurrency(widget.totalBalance),
+          style: TextStyle(
+            color: balanceColor,
+            fontSize: 36,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+            shadows: [
+              Shadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+        ),
+        if (isNegative) ...[
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.red.shade500.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.red.shade300.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              'DEBT',
+              style: TextStyle(
+                color: Colors.red.shade300,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+              ),
+            ),
           ),
         ],
-      ),
+      ],
     );
   }
 

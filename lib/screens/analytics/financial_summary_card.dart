@@ -6,6 +6,7 @@ class FinancialSummaryCard extends StatelessWidget {
   final double totalExpenses;
   final double netSavings;
   final String Function(double) formatCurrency;
+  final List<String> goals;
 
   const FinancialSummaryCard({
     Key? key,
@@ -13,12 +14,11 @@ class FinancialSummaryCard extends StatelessWidget {
     required this.totalExpenses,
     required this.netSavings,
     required this.formatCurrency,
+    this.goals = const [],
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -147,22 +147,43 @@ class FinancialSummaryCard extends StatelessWidget {
     IconData icon,
     Color color,
   ) {
+    final isSavingsGoal = goals.contains('Savings') && label == 'Savings';
+    final isNegativeSavings = label == 'Savings' && netSavings < 0;
+    final iconSize = isSavingsGoal ? 24.0 : 18.0;
+    final fontSize = isSavingsGoal ? 18.0 : 16.0;
+    final fontWeight = isSavingsGoal ? FontWeight.w800 : FontWeight.w700;
+
+    // Override color for negative savings
+    final displayColor = isNegativeSavings ? const Color(0xFFEF5350) : color;
+
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: isNegativeSavings
+                ? Colors.red.shade500.withOpacity(0.2)
+                : isSavingsGoal
+                    ? Colors.white.withOpacity(0.25)
+                    : Colors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 1,
+              color: isNegativeSavings
+                  ? Colors.red.shade300.withOpacity(0.4)
+                  : isSavingsGoal
+                      ? Colors.white.withOpacity(0.4)
+                      : Colors.white.withOpacity(0.2),
+              width: isNegativeSavings
+                  ? 2
+                  : isSavingsGoal
+                      ? 2
+                      : 1,
             ),
           ),
           child: Icon(
-            icon,
-            color: color,
-            size: 18,
+            isNegativeSavings ? Icons.warning_amber_rounded : icon,
+            color: displayColor,
+            size: iconSize,
           ),
         ),
         const SizedBox(height: 8),
@@ -179,12 +200,24 @@ class FinancialSummaryCard extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: color,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+            color: displayColor,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
             letterSpacing: 0.5,
           ),
         ),
+        if (isNegativeSavings) ...[
+          const SizedBox(height: 4),
+          Text(
+            'DEBT',
+            style: TextStyle(
+              color: Colors.red.shade300,
+              fontSize: 8,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+            ),
+          ),
+        ],
       ],
     );
   }

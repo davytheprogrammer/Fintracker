@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/user_services.dart';
 import 'daily_usage_manager.dart';
 import 'roadmap_generator.dart';
 import 'error_logger.dart';
@@ -18,12 +19,14 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final scaffoldKey =
       GlobalKey<ScaffoldMessengerState>(); // Added for snackbars
+  final UserService _userService = UserService();
 
   bool _isLoading = false;
   Map<String, dynamic>? _roadmapData;
   int _dailyUsageCount = 0;
   String? _errorMessage;
   bool _isSecondaryAPIAttempt = false;
+  String _currencySymbol = 'KES';
 
   static const int MAX_DAILY_ROADMAPS = 6;
   static const String DAILY_USAGE_KEY = 'daily_roadmap_usage';
@@ -33,6 +36,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
     super.initState();
     _loadDailyUsage();
     _setupControllerListeners();
+    _loadUserCurrency();
   }
 
   void _setupControllerListeners() {
@@ -55,7 +59,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         backgroundColor: isError ? Colors.red : Colors.green,
         duration: Duration(seconds: isError ? 4 : 2),
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(8),
+        margin: const EdgeInsets.all(8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         action: isError
             ? SnackBarAction(
@@ -86,6 +90,17 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
     } catch (e) {
       logError('Unexpected error in _loadDailyUsage', e);
       _showSnackBar('An unexpected error occurred', isError: true);
+    }
+  }
+
+  Future<void> _loadUserCurrency() async {
+    try {
+      final userModel = await _userService.getCurrentUserData();
+      setState(() {
+        _currencySymbol = userModel.currency?.symbol ?? 'KES';
+      });
+    } catch (e) {
+      logError('Error loading user currency', e);
     }
   }
 
@@ -302,7 +317,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Investment Roadmap Generator',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
@@ -334,8 +349,8 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDarkMode
-                ? [Colors.grey.shade900, Colors.black]
-                : [Colors.pink.shade50, Colors.white],
+                ? const [Color(0xFF0F0F1E), Color(0xFF1A1A2E)]
+                : const [Color(0xFFF8F9FA), Colors.white],
           ),
         ),
         child: Padding(
@@ -358,6 +373,7 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
                   onGenerateRoadmap: _generateRoadmap,
                   isDarkMode: isDarkMode,
                   theme: theme,
+                  currencySymbol: _currencySymbol,
                 ),
                 const SizedBox(height: 16),
                 if (_errorMessage != null)

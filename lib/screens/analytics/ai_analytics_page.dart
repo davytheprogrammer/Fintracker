@@ -1,14 +1,14 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../models/user_model.dart';
+import '../../services/user_services.dart';
 import 'financial_summary_card.dart';
 import 'ai_insight_card.dart';
 import 'category_donut_chart.dart';
@@ -25,8 +25,12 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     with SingleTickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final UserService _userService = UserService();
   final String _prefsKeyInsights = 'ai_financial_insights';
   final String _prefsKeyTimestamp = 'ai_insights_timestamp';
+
+  // User profile data
+  UserModel? _userModel;
 
   // Financial data variables
   String _aiInsight = 'Analyzing your financial patterns...';
@@ -38,13 +42,12 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   double _totalIncome = 0;
   double _totalExpenses = 0;
   double _netSavings = 0;
-  Map<String, double> _categorySpending = {};
+  final Map<String, double> _categorySpending = {};
   int _selectedCategoryIndex = -1;
 
   // Animation and UI controllers
   late AnimationController _animationController;
   late Animation<double> _animation;
-  int _selectedTimeFrame = 1; // 0: Week, 1: Month, 2: Year
   bool _isFetchingData = false;
 
   // Chart colors
@@ -89,13 +92,21 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   Future<void> _initializeData() async {
+    if (!mounted) return;
     setState(() {
       _isFetchingData = true;
     });
 
     await _loadCachedInsights();
-    await _fetchTransactionsAndAnalyze();
+    if (!mounted) return;
 
+    await _loadUserProfile();
+    if (!mounted) return;
+
+    // Note: We no longer call _fetchTransactionsAndAnalyze here
+    // as the StreamBuilder in _buildAnalyticsContent will handle real-time updates
+
+    if (!mounted) return;
     setState(() {
       _isFetchingData = false;
     });
@@ -113,6 +124,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
 
         // If cached insights are less than 12 hours old, use them
         if (hourDiff < 12) {
+          if (!mounted) return;
           setState(() {
             _aiInsight = cachedInsight;
             _isLoadingAIInsight = false;
@@ -138,42 +150,17 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     }
   }
 
-  Future<void> _fetchTransactionsAndAnalyze() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      try {
-        final snapshot = await _firestore
-            .collection('transactions')
-            .where('userId', isEqualTo: user.uid)
-            .orderBy('date', descending: true)
-            .get();
-
-        if (snapshot.docs.isEmpty) {
-          setState(() {
-            _isLoadingAIInsight = false;
-            _aiInsight =
-                "No transaction data available. Add transactions to get AI insights.";
-          });
-          return;
-        }
-
-        _processTransactions(snapshot.docs);
-        _generateMonthlyData();
-
-        // Only perform AI analysis if we haven't already loaded from cache
-        if (_isLoadingAIInsight) {
-          await _performAIAnalysis();
-        }
-      } catch (e) {
-        _showErrorSnackbar('Failed to fetch financial data');
-        setState(() {
-          _isLoadingAIInsight = false;
-        });
-      }
+  Future<void> _loadUserProfile() async {
+    try {
+      _userModel = await _userService.getCurrentUserData();
+    } catch (e) {
+      print('Failed to load user profile: $e');
     }
   }
 
   void _processTransactions(List<QueryDocumentSnapshot> docs) {
+    if (!mounted) return;
+
     // Reset financial metrics
     _totalIncome = 0;
     _totalExpenses = 0;
@@ -185,6 +172,15 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
       // Ensure all transactions have a proper date
       if (data['date'] == null) {
         data['date'] = Timestamp.now();
+      } else if (data['date'] is String) {
+        // Handle string dates - assume ISO 8601 format
+        try {
+          data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
+        } catch (e) {
+          print(
+              'Error parsing date string: ${data['date']}, using current time');
+          data['date'] = Timestamp.now();
+        }
       }
       return data;
     }).toList();
@@ -202,6 +198,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
       }
     }
 
+    if (!mounted) return;
     setState(() {
       _transactions = transactions;
       _netSavings = _totalIncome - _totalExpenses;
@@ -209,11 +206,27 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   void _generateMonthlyData() {
+    if (!mounted) return;
+
     // Group transactions by month for the spending trend chart
     final Map<String, Map<String, double>> monthlyData = {};
 
     for (var tx in _transactions) {
-      final date = (tx['date'] as Timestamp).toDate();
+      DateTime date;
+      if (tx['date'] is Timestamp) {
+        date = (tx['date'] as Timestamp).toDate();
+      } else if (tx['date'] is String) {
+        try {
+          date = DateTime.parse(tx['date']);
+        } catch (e) {
+          print('Error parsing date in _generateMonthlyData: ${tx['date']}');
+          continue; // Skip this transaction
+        }
+      } else {
+        print('Unexpected date type: ${tx['date'].runtimeType}');
+        continue; // Skip this transaction
+      }
+
       final monthKey = DateFormat('MMM yyyy').format(date);
       final amount = (tx['amount'] as num?)?.toDouble() ?? 0.0;
       final type = tx['type'] as String? ?? 'expense';
@@ -253,6 +266,8 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   Future<void> _performAIAnalysis() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoadingAIInsight = true;
     });
@@ -260,6 +275,8 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     try {
       final analysisPrompt = _prepareAnalysisPrompt();
       final response = await _callAIAnalytics(analysisPrompt);
+
+      if (!mounted) return;
 
       setState(() {
         _aiInsight = response;
@@ -270,6 +287,8 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
       _cacheInsights(response);
     } catch (e) {
       print('AI Analysis error: $e');
+      if (!mounted) return;
+
       _showErrorSnackbar('Unable to generate AI insights');
       setState(() {
         _isLoadingAIInsight = false;
@@ -310,6 +329,22 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
             )
             .join(", ");
 
+    // User profile data for personalization
+    String userProfileInfo = "";
+    if (_userModel != null) {
+      final goals = _userModel!.goals.isNotEmpty
+          ? _userModel!.goals.join(", ")
+          : "No specific goals set";
+      final incomeRange = _userModel!.incomeRange ?? "Not specified";
+      final riskTolerance = _userModel!.riskTolerance ?? "Not specified";
+
+      userProfileInfo = '''
+    - User's Financial Goals: $goals
+    - Income Range: $incomeRange
+    - Risk Tolerance: $riskTolerance
+    ''';
+    }
+
     return '''
     Financial Analysis Prompt:
     - Total Monthly Income: ${_formatCurrency(_totalIncome)}
@@ -317,9 +352,9 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     - Net Savings: ${_formatCurrency(_netSavings)}
     - Savings Rate: ${_totalIncome > 0 ? (_netSavings / _totalIncome * 100).toStringAsFixed(1) : 0}%
     - Top Spending Categories: $categoryBreakdown
-    - Spending Trend: $spendingTrend
+    - Spending Trend: $spendingTrend$userProfileInfo
 
-    As a friendly financial advisor, provide personalized insights about the spending patterns and give 3 specific, practical recommendations to improve financial health. Be conversational but concise. and your generated text should be a beautiful markdown
+    As a friendly financial advisor, provide personalized insights about the spending patterns and give 3 specific, practical recommendations to improve financial health. Tailor your advice based on the user's goals, income range, and risk tolerance. Be conversational but concise, and your generated text should be beautiful markdown.
     ''';
   }
 
@@ -385,6 +420,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   void _showErrorSnackbar(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -447,53 +483,107 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   Widget _buildAnalyticsContent() {
-    return RefreshIndicator(
-      onRefresh: _initializeData,
-      color: const Color(0xFFE91E63),
-      child: _isFetchingData
-          ? _buildLoadingState()
-          : AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animation.value,
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      FinancialSummaryCard(
-                        totalIncome: _totalIncome,
-                        totalExpenses: _totalExpenses,
-                        netSavings: _netSavings,
-                        formatCurrency: _formatCurrency,
-                      ),
-                      const SizedBox(height: 16),
-                      AIInsightCard(
-                        aiInsight: _aiInsight,
-                        isLoadingAIInsight: _isLoadingAIInsight,
-                        performAIAnalysis: _performAIAnalysis,
-                      ),
-                      const SizedBox(height: 16),
-                      CategoryDonutChart(
-                        categorySpending: _categorySpending,
-                        totalExpenses: _totalExpenses,
-                        selectedCategoryIndex: _selectedCategoryIndex,
-                        categoryColors: _categoryColors,
-                        getPercentage: _getPercentage,
-                        formatCurrency: _formatCurrency,
-                        onCategorySelected: (index) {
-                          setState(() {
-                            _selectedCategoryIndex = index;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      SpendingTrendCard(monthlyData: _monthlyData),
-                    ],
-                  ),
-                );
-              },
-            ),
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      return Center(
+        child: Text(
+          'Please sign in to continue',
+          style: TextStyle(color: const Color(0xFFE91E63)),
+        ),
+      );
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('transactions')
+          .orderBy('date', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return _buildErrorState(snapshot.error.toString());
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            _transactions.isEmpty) {
+          return _buildLoadingState();
+        }
+
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _processTransactions(snapshot.data!.docs);
+            _generateMonthlyData();
+
+            // Only perform AI analysis once when we first get data and haven't loaded from cache
+            if (_isLoadingAIInsight &&
+                !_isFetchingData &&
+                _aiInsight == 'Analyzing your financial patterns...') {
+              _performAIAnalysis();
+            }
+          });
+        } else if (snapshot.hasData &&
+            snapshot.data!.docs.isEmpty &&
+            _isLoadingAIInsight) {
+          // Handle empty transactions case
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              _isLoadingAIInsight = false;
+              _aiInsight =
+                  "No transaction data available. Add transactions to get AI insights.";
+            });
+          });
+        }
+
+        return RefreshIndicator(
+          onRefresh: _initializeData,
+          color: const Color(0xFFE91E63),
+          child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _animation.value,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    FinancialSummaryCard(
+                      totalIncome: _totalIncome,
+                      totalExpenses: _totalExpenses,
+                      netSavings: _netSavings,
+                      formatCurrency: _formatCurrency,
+                      goals: _userModel?.goals ?? [],
+                    ),
+                    const SizedBox(height: 16),
+                    AIInsightCard(
+                      aiInsight: _aiInsight,
+                      isLoadingAIInsight: _isLoadingAIInsight,
+                      performAIAnalysis: _performAIAnalysis,
+                    ),
+                    const SizedBox(height: 16),
+                    CategoryDonutChart(
+                      categorySpending: _categorySpending,
+                      totalExpenses: _totalExpenses,
+                      selectedCategoryIndex: _selectedCategoryIndex,
+                      categoryColors: _categoryColors,
+                      getPercentage: _getPercentage,
+                      formatCurrency: _formatCurrency,
+                      onCategorySelected: (index) {
+                        setState(() {
+                          _selectedCategoryIndex = index;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    SpendingTrendCard(monthlyData: _monthlyData),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -526,6 +616,44 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: Colors.red,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Something went wrong',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: const Color(0xFFE91E63),
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFFE91E63).withOpacity(0.7),
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _initializeData,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFE91E63),
+            ),
+            child: const Text('Try Again'),
           ),
         ],
       ),

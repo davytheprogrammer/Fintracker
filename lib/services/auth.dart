@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:Finspense/models/the_user.dart';
-import 'package:Finspense/services/database.dart';
+import 'package:Finspense/repositories/user_repository.dart';
+import 'package:Finspense/models/user_model.dart';
 
 class AuthService {
   // Create instance of our FirebaseAuth, providing us with methods from the FirebaseAuth class
@@ -16,9 +17,10 @@ class AuthService {
 
   // auth change user stream
   Stream<TheUser?> get user {
-    return _auth.authStateChanges()
-    // .map((User? user) => _userFromFirebaseUser(user));
-    .map(_userFromFirebaseUser); // simplified method
+    return _auth
+        .authStateChanges()
+        // .map((User? user) => _userFromFirebaseUser(user));
+        .map(_userFromFirebaseUser); // simplified method
   }
 
   // method to login anonymously (asynchronous task)
@@ -60,15 +62,25 @@ class AuthService {
       UserCredential result = await _auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((user) {
-            user.user!.updateDisplayName(displayName);
-            return user;
-          });
+        user.user!.updateDisplayName(displayName);
+        return user;
+      });
       User? user = result.user;
 
-      // create a new document for the user with the uid
-      await DatabaseService(
+      // create a new user profile using UserRepository
+      final userRepository = UserRepository();
+      await userRepository.createOrUpdateUser(UserModel(
         uid: user!.uid,
-      ).updateUserData(displayName, user.email, type);
+        goals: [],
+        currency: Currency(code: 'KES', symbol: 'KES'), // Default currency
+        incomeRange: 'Not specified',
+        ageRange: 'Not specified',
+        occupation: displayName, // Using displayName as occupation placeholder
+        location:
+            Location(country: 'Kenya', city: 'Nairobi'), // Default location
+        riskTolerance: 'Moderate',
+      ));
+
       print('print #2:');
       print(user);
       return _userFromFirebaseUser(user);

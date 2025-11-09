@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../home_screen/home.dart';
-
 class Login extends StatefulWidget {
   final Function toggleView;
   const Login({Key? key, required this.toggleView}) : super(key: key);
@@ -31,11 +29,7 @@ class _LoginState extends State<Login> {
           password: _password,
         );
 
-        // Navigate to HomePage on successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
+        // Authentication successful, wrapper will handle navigation
       } on FirebaseAuthException catch (e) {
         setState(() {
           _error =
@@ -68,21 +62,21 @@ class _LoginState extends State<Login> {
                       height: 120,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFF9A9E), Color(0xFFFAD0C4)],
+                          colors: [Color(0xFF6C63FF), Color(0xFF8B85FF)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.pink.shade100,
+                            color: const Color(0xFF6C63FF).withOpacity(0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: const Icon(
-                        Icons.person_outline,
+                        Icons.account_balance_wallet_rounded,
                         size: 60,
                         color: Colors.white,
                       ),
@@ -95,7 +89,9 @@ class _LoginState extends State<Login> {
                     children: [
                       Text(
                         'Welcome Back',
-                        style: Theme.of(context).textTheme.headlineMedium
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
                             ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -106,9 +102,9 @@ class _LoginState extends State<Login> {
                       Text(
                         'Sign in to continue',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[600],
-                          letterSpacing: 0.3,
-                        ),
+                              color: Colors.grey[600],
+                              letterSpacing: 0.3,
+                            ),
                       ),
                     ],
                   ),
@@ -143,8 +139,9 @@ class _LoginState extends State<Login> {
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (val) {
-                      if (val?.isEmpty ?? true)
+                      if (val?.isEmpty ?? true) {
                         return 'Please enter your email';
+                      }
                       if (!RegExp(
                         r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                       ).hasMatch(val!)) {
@@ -208,10 +205,10 @@ class _LoginState extends State<Login> {
                       onPressed: () {
                         // Implement forgot password functionality
                       },
-                      child: Text(
+                      child: const Text(
                         'Forgot Password?',
                         style: TextStyle(
-                          color: Colors.pink[400],
+                          color: Color(0xFF6C63FF),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -224,12 +221,13 @@ class _LoginState extends State<Login> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.pink[50],
+                        color: const Color(0xFFEF5350).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         _error,
-                        style: TextStyle(color: Colors.pink[700], fontSize: 14),
+                        style: const TextStyle(
+                            color: Color(0xFFEF5350), fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -241,13 +239,13 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.pink.shade100,
+                          color: const Color(0xFF6C63FF).withOpacity(0.3),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
-                      gradient: LinearGradient(
-                        colors: [Colors.pink.shade300, Colors.pink.shade200],
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF8B85FF)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
