@@ -151,9 +151,9 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Input Budget (${widget.currencySymbol})',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            const Text(
+              'Input Budget',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
             TextFormField(

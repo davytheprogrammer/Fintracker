@@ -384,7 +384,11 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
                     MarkdownSection(roadmapData: _roadmapData!),
                   if (!_roadmapData!.containsKey('markdown_content')) ...[
                     TimelineSection(roadmapData: _roadmapData!),
-                    FinancialBreakdown(roadmapData: _roadmapData!),
+                    FinancialBreakdown(
+                      roadmapData: _roadmapData!,
+                      currencySymbol: _currencySymbol,
+                      userBudget: _budgetController.text,
+                    ),
                     RiskAssessment(roadmapData: _roadmapData!),
                   ],
                 ],

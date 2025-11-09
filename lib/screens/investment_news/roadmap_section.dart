@@ -46,8 +46,7 @@ class MarkdownSection extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(12),
               child: Markdown(
-                data:
-                    roadmapData['markdown_content'] ??
+                data: roadmapData['markdown_content'] ??
                     '## No Markdown Content Available\n\nPlease generate markdown content first.',
                 selectable: true,
                 padding: EdgeInsets.zero,
@@ -63,7 +62,8 @@ class MarkdownSection extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  h3: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  h3: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                   p: const TextStyle(fontSize: 14, height: 1.5),
                   a: const TextStyle(
                     color: Colors.blue,
@@ -223,8 +223,15 @@ class TimelineSection extends StatelessWidget {
 
 class FinancialBreakdown extends StatelessWidget {
   final Map<String, dynamic> roadmapData;
+  final String currencySymbol;
+  final String userBudget;
 
-  const FinancialBreakdown({super.key, required this.roadmapData});
+  const FinancialBreakdown({
+    super.key,
+    required this.roadmapData,
+    this.currencySymbol = 'KES',
+    this.userBudget = '0',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -273,11 +280,11 @@ class FinancialBreakdown extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Total Investment Cost',
+                          'Your Budget',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '\$${financials['total_cost']}',
+                          '$currencySymbol $userBudget',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -296,7 +303,7 @@ class FinancialBreakdown extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '\$${financials['expected_revenue']}',
+                          '$currencySymbol ${financials['expected_revenue']}',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -322,11 +329,10 @@ class FinancialBreakdown extends StatelessWidget {
                   ? BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
-                        maxY:
-                            yearlyGrowth.cast<num>().fold<int>(
-                              0,
-                              (p, c) => (p > c.toInt() ? p : c.toInt()),
-                            ) *
+                        maxY: yearlyGrowth.cast<num>().fold<int>(
+                                  0,
+                                  (p, c) => (p > c.toInt() ? p : c.toInt()),
+                                ) *
                             1.2,
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
@@ -340,8 +346,7 @@ class FinancialBreakdown extends StatelessWidget {
                                     '${value.round()}%',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color:
-                                          Theme.of(context).brightness ==
+                                      color: Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? Colors.grey.shade400
                                           : Colors.grey.shade700,
@@ -361,8 +366,7 @@ class FinancialBreakdown extends StatelessWidget {
                                     'Year ${value.toInt() + 1}',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color:
-                                          Theme.of(context).brightness ==
+                                      color: Theme.of(context).brightness ==
                                               Brightness.dark
                                           ? Colors.grey.shade400
                                           : Colors.grey.shade700,

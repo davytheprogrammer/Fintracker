@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../../services/user_services.dart';
 import 'error_logger.dart';
@@ -29,6 +30,7 @@ class RoadmapGenerator {
     required Function(Map<String, dynamic>) onFallback,
     required Function(Object) onFallbackError,
   }) async {
+    // Try Together AI first
     try {
       final primaryResponse = await _makePrimaryApiCall(
         ideaController.text,
@@ -59,62 +61,208 @@ class RoadmapGenerator {
       } catch (e) {
         logError('Cleaning API attempt failed', e);
       }
-
-      await fallbackMarkdownGeneration(
-        ideaController: ideaController,
-        budgetController: budgetController,
-        onSuccess: onFallback,
-        onError: onFallbackError,
-      );
     } catch (e) {
-      logError('Roadmap generation failed', e);
-      await fallbackMarkdownGeneration(
-        ideaController: ideaController,
-        budgetController: budgetController,
-        onSuccess: onFallback,
-        onError: onFallbackError,
-      );
+      logError('Together AI failed, trying Gemini', e);
+      // If Together AI fails, try Gemini directly for JSON
+      try {
+        final geminiResponse = await _makeGeminiJsonCall(
+          ideaController.text,
+          budgetController.text,
+        );
+
+        try {
+          final sanitizedResponse = _sanitizeJsonResponse(geminiResponse);
+          final jsonResponse = json.decode(sanitizedResponse);
+
+          if (_validateRoadmapStructure(jsonResponse)) {
+            onSuccess(jsonResponse);
+            return;
+          }
+        } catch (parseError) {
+          logError('Gemini JSON response parsing failed', parseError);
+        }
+      } catch (geminiError) {
+        logError('Gemini JSON generation also failed', geminiError);
+      }
     }
+
+    // Final fallback to markdown generation
+    await fallbackMarkdownGeneration(
+      ideaController: ideaController,
+      budgetController: budgetController,
+      onSuccess: onFallback,
+      onError: onFallbackError,
+    );
   }
 
   static Future<String> _makePrimaryApiCall(String idea, String budget) async {
-    final model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: 'AIzaSyCOutG-g_tVZKzbTtH0bzNjWdoaDVA2YCo',
-    );
-
-    const strictInstructions = '''
-    IMPORTANT INSTRUCTIONS:
-    1. Respond ONLY with valid JSON in the exact specified format
-    2. Do NOT include any markdown formatting like ```
-    3. Do NOT include any explanatory text outside the JSON structure
-    4. Ensure all JSON fields are properly escaped
-    5. If you must include comments, put them inside JSON strings
-    ''';
+    const apiUrl = "https://api.together.xyz/v1/chat/completions";
+    const apiKey =
+        "4db152889da5afebdba262f90e4cdcf12976ee8b48d9135c2bb86ef9b0d12bdd";
 
     final currencySymbol = await _getCurrencySymbol();
     final currentDate = _getCurrentDate();
 
     final prompt = '''
-    $strictInstructions
+Generate a detailed investment roadmap for: $idea
 
-    ADDITIONAL INSTRUCTIONS:
-    1. Use the current date "$currentDate" when generating timeline dates
-    2. ALWAYS use the currency symbol "$currencySymbol" for all monetary values
-    3. The user's budget is: $budget $currencySymbol - scale financial projections accordingly
-    4. If no specific dates are provided, calculate relative to "$currentDate"
-    5. All financial amounts must be in $currencySymbol
+User's Budget: $budget $currencySymbol
+Current Date: $currentDate
 
-    ${_createRoadmapPrompt(idea)}
-    ''';
-    final response = await model.generateContent([Content.text(prompt)]);
-    return response.text ?? '{}';
+Respond STRICTLY in this JSON format:
+{
+  "idea_validity": "valid/invalid",
+  "refinement_suggestions": ["array", "of", "strings"],
+  "investment_timeline": [
+    {
+      "phase": "string",
+      "start": "string",
+      "end": "string",
+      "milestones": ["array", "of", "strings"]
+    }
+  ],
+  "financial_projection": {
+    "total_cost": number,
+    "expected_revenue": number,
+    "yearly_growth": [array, of, numbers]
+  },
+  "risk_assessment": {
+    "score": "low/medium/high",
+    "risks": ["array", "of", "strings"],
+    "mitigation": ["array", "of", "strings"]
+  },
+  "word_cloud": ["array", "of", "strings"]
+}
+
+IMPORTANT INSTRUCTIONS:
+1. Respond ONLY with valid JSON in the exact specified format
+2. Do NOT include any markdown formatting like ```
+3. Do NOT include any explanatory text outside the JSON structure
+4. Ensure all JSON fields are properly escaped
+5. Use the current date "$currentDate" when generating timeline dates
+6. ALWAYS use the currency symbol "$currencySymbol" for all monetary values
+7. The user's budget is: $budget $currencySymbol - scale financial projections accordingly
+8. All financial amounts must be in $currencySymbol
+''';
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $apiKey",
+      },
+      body: json.encode({
+        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+        "messages": [
+          {
+            "role": "system",
+            "content":
+                "You are an expert investment advisor. Provide detailed, accurate investment roadmaps in valid JSON format only.",
+          },
+          {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.7,
+        "max_tokens": 2000,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['choices'][0]['message']['content'].trim();
+    } else {
+      throw Exception('Together AI failed: ${response.statusCode}');
+    }
+  }
+
+  static Future<String> _makeGeminiJsonCall(String idea, String budget) async {
+    final currencySymbol = await _getCurrencySymbol();
+    final currentDate = _getCurrentDate();
+
+    final prompt = '''
+Generate a detailed investment roadmap for: $idea
+
+User's Budget: $budget $currencySymbol
+Current Date: $currentDate
+
+Respond STRICTLY in this JSON format:
+{
+  "idea_validity": "valid/invalid",
+  "refinement_suggestions": ["array", "of", "strings"],
+  "investment_timeline": [
+    {
+      "phase": "string",
+      "start": "string",
+      "end": "string",
+      "milestones": ["array", "of", "strings"]
+    }
+  ],
+  "financial_projection": {
+    "total_cost": number,
+    "expected_revenue": number,
+    "yearly_growth": [array, of, numbers]
+  },
+  "risk_assessment": {
+    "score": "low/medium/high",
+    "risks": ["array", "of", "strings"],
+    "mitigation": ["array", "of", "strings"]
+  },
+  "word_cloud": ["array", "of", "strings"]
+}
+
+IMPORTANT INSTRUCTIONS:
+1. Respond ONLY with valid JSON in the exact specified format
+2. Do NOT include any markdown formatting like ```
+3. Do NOT include any explanatory text outside the JSON structure
+4. Ensure all JSON fields are properly escaped
+5. Use the current date "$currentDate" when generating timeline dates
+6. ALWAYS use the currency symbol "$currencySymbol" for all monetary values
+7. The user's budget is: $budget $currencySymbol - scale financial projections accordingly
+8. All financial amounts must be in $currencySymbol
+''';
+
+    // Try first Gemini API key
+    try {
+      final model = GenerativeModel(
+        model: 'gemini-2.0-flash-exp',
+        apiKey: 'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc',
+      );
+      final response = await model.generateContent([Content.text(prompt)]);
+      return response.text ?? '{}';
+    } catch (e) {
+      print('First Gemini JSON API failed, trying second: $e');
+      // Try second Gemini API key
+      final model = GenerativeModel(
+        model: 'gemini-2.0-flash-exp',
+        apiKey: 'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM',
+      );
+      final response = await model.generateContent([Content.text(prompt)]);
+      return response.text ?? '{}';
+    }
   }
 
   static Future<String> _makeCleaningApiCall(String dirtyJson) async {
+    // Try first Gemini API key
+    try {
+      return await _callGeminiCleaningAI(
+          dirtyJson, 'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc');
+    } catch (e) {
+      print('First Gemini cleaning API failed: $e');
+      // Try second Gemini API key
+      try {
+        return await _callGeminiCleaningAI(
+            dirtyJson, 'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM');
+      } catch (fallbackError) {
+        print('Second Gemini cleaning API also failed: $fallbackError');
+        throw Exception('Both Gemini cleaning APIs failed');
+      }
+    }
+  }
+
+  static Future<String> _callGeminiCleaningAI(
+      String dirtyJson, String apiKey) async {
     final model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: 'AIzaSyCOutG-g_tVZKzbTtH0bzNjWdoaDVA2YCo',
+      model: 'gemini-2.0-flash-exp',
+      apiKey: apiKey,
     );
 
     const cleaningInstructions = '''
@@ -126,7 +274,7 @@ class RoadmapGenerator {
 
     final prompt = '''
     $cleaningInstructions
-    
+
     Here is the JSON to fix:
     $dirtyJson
     ''';
@@ -142,49 +290,99 @@ class RoadmapGenerator {
     required Function(Object) onError,
   }) async {
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: 'AIzaSyCOutG-g_tVZKzbTtH0bzNjWdoaDVA2YCo',
-      );
-
       final currentDate = _getCurrentDate();
-
       final currencySymbol = await _getCurrencySymbol();
-      final response = await model.generateContent([
-        Content.text(
-          _createFallbackPrompt(
-            ideaController.text,
-            budgetController.text,
-            currentDate,
-            currencySymbol,
-          ),
-        ),
-      ]);
 
-      final fallbackRoadmap = {
-        'idea_validity': 'valid',
-        'refinement_suggestions': ['Generated using fallback method'],
-        'investment_timeline': [
-          {'phase': 'Initial', 'start': 'Immediate', 'end': '3 months'},
-        ],
-        'financial_projection': {
-          'total_cost': 0,
-          'expected_revenue': 0,
-          'yearly_growth': [0, 0, 0],
-        },
-        'risk_assessment': {
-          'score': 'medium',
-          'risks': ['Generated using fallback method'],
-          'mitigation': ['See detailed markdown content'],
-        },
-        'word_cloud': [],
-        'markdown_content': response.text ?? '',
-      };
+      // Try first Gemini API key
+      try {
+        final response = await _callGeminiMarkdownAI(
+          ideaController.text,
+          budgetController.text,
+          currentDate,
+          currencySymbol,
+          'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc',
+        );
 
-      onSuccess(fallbackRoadmap);
+        final fallbackRoadmap = {
+          'idea_validity': 'valid',
+          'refinement_suggestions': ['Generated using fallback method'],
+          'investment_timeline': [
+            {'phase': 'Initial', 'start': 'Immediate', 'end': '3 months'},
+          ],
+          'financial_projection': {
+            'total_cost': 0,
+            'expected_revenue': 0,
+            'yearly_growth': [0, 0, 0],
+          },
+          'risk_assessment': {
+            'score': 'medium',
+            'risks': ['Generated using fallback method'],
+            'mitigation': ['See detailed markdown content'],
+          },
+          'word_cloud': [],
+          'markdown_content': response,
+        };
+
+        onSuccess(fallbackRoadmap);
+        return;
+      } catch (e) {
+        print('First Gemini markdown API failed: $e');
+        // Try second Gemini API key
+        final response = await _callGeminiMarkdownAI(
+          ideaController.text,
+          budgetController.text,
+          currentDate,
+          currencySymbol,
+          'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM',
+        );
+
+        final fallbackRoadmap = {
+          'idea_validity': 'valid',
+          'refinement_suggestions': ['Generated using fallback method'],
+          'investment_timeline': [
+            {'phase': 'Initial', 'start': 'Immediate', 'end': '3 months'},
+          ],
+          'financial_projection': {
+            'total_cost': 0,
+            'expected_revenue': 0,
+            'yearly_growth': [0, 0, 0],
+          },
+          'risk_assessment': {
+            'score': 'medium',
+            'risks': ['Generated using fallback method'],
+            'mitigation': ['See detailed markdown content'],
+          },
+          'word_cloud': [],
+          'markdown_content': response,
+        };
+
+        onSuccess(fallbackRoadmap);
+      }
     } catch (e) {
       onError(e);
     }
+  }
+
+  static Future<String> _callGeminiMarkdownAI(
+    String investmentIdea,
+    String budget,
+    String currentDate,
+    String currencySymbol,
+    String apiKey,
+  ) async {
+    final model = GenerativeModel(
+      model: 'gemini-2.0-flash-exp',
+      apiKey: apiKey,
+    );
+
+    final response = await model.generateContent([
+      Content.text(
+        _createFallbackPrompt(
+            investmentIdea, budget, currentDate, currencySymbol),
+      ),
+    ]);
+
+    return response.text ?? '';
   }
 
   static String _sanitizeJsonResponse(String rawResponse) {
@@ -208,37 +406,6 @@ class RoadmapGenerator {
         data.containsKey('investment_timeline') &&
         data.containsKey('financial_projection') &&
         data.containsKey('risk_assessment');
-  }
-
-  static String _createRoadmapPrompt(String investmentIdea) {
-    return '''
-    Generate a detailed investment roadmap for: $investmentIdea 
-    
-    Respond STRICTLY in this JSON format:
-    {
-      "idea_validity": "valid/invalid",
-      "refinement_suggestions": ["array", "of", "strings"],
-      "investment_timeline": [
-        {
-          "phase": "string",
-          "start": "string",
-          "end": "string",
-          "milestones": ["array", "of", "strings"]
-        }
-      ],
-      "financial_projection": {
-        "total_cost": number,
-        "expected_revenue": number,
-        "yearly_growth": [array, of, numbers]
-      },
-      "risk_assessment": {
-        "score": "low/medium/high",
-        "risks": ["array", "of", "strings"],
-        "mitigation": ["array", "of", "strings"]
-      },
-      "word_cloud": ["array", "of", "strings"]
-    }
-    ''';
   }
 
   static String _createFallbackPrompt(
