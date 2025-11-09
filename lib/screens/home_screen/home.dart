@@ -597,7 +597,8 @@ class _HomePageState extends State<HomePage>
         physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         children: [
-          const SizedBox(height: 16), // Small space between app bar and balance card
+          const SizedBox(
+              height: 16), // Small space between app bar and balance card
           BalanceCard(
             totalBalance: _financeData.value.totalBalance,
             totalIncome: _financeData.value.totalIncome,
