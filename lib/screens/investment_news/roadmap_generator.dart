@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../../services/user_services.dart';
+import '../../services/ai_service.dart';
 import 'error_logger.dart';
 
 class RoadmapGenerator {
+  static final AIService _aiService = AIService();
+
   static String _getCurrentDate() {
     return DateFormat('MMMM dd, yyyy').format(DateTime.now());
   }
@@ -96,10 +97,6 @@ class RoadmapGenerator {
   }
 
   static Future<String> _makePrimaryApiCall(String idea, String budget) async {
-    const apiUrl = "https://api.together.xyz/v1/chat/completions";
-    const apiKey =
-        "4db152889da5afebdba262f90e4cdcf12976ee8b48d9135c2bb86ef9b0d12bdd";
-
     final currencySymbol = await _getCurrencySymbol();
     final currentDate = _getCurrentDate();
 
@@ -145,33 +142,7 @@ IMPORTANT INSTRUCTIONS:
 8. All financial amounts must be in $currencySymbol
 ''';
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $apiKey",
-      },
-      body: json.encode({
-        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
-        "messages": [
-          {
-            "role": "system",
-            "content":
-                "You are an expert investment advisor. Provide detailed, accurate investment roadmaps in valid JSON format only.",
-          },
-          {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.7,
-        "max_tokens": 2000,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['choices'][0]['message']['content'].trim();
-    } else {
-      throw Exception('Together AI failed: ${response.statusCode}');
-    }
+    return await _aiService.generateInvestmentRoadmap(prompt);
   }
 
   static Future<String> _makeGeminiJsonCall(String idea, String budget) async {
@@ -220,67 +191,11 @@ IMPORTANT INSTRUCTIONS:
 8. All financial amounts must be in $currencySymbol
 ''';
 
-    // Try first Gemini API key
-    try {
-      final model = GenerativeModel(
-        model: 'gemini-2.0-flash-exp',
-        apiKey: 'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc',
-      );
-      final response = await model.generateContent([Content.text(prompt)]);
-      return response.text ?? '{}';
-    } catch (e) {
-      print('First Gemini JSON API failed, trying second: $e');
-      // Try second Gemini API key
-      final model = GenerativeModel(
-        model: 'gemini-2.0-flash-exp',
-        apiKey: 'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM',
-      );
-      final response = await model.generateContent([Content.text(prompt)]);
-      return response.text ?? '{}';
-    }
+    return await _aiService.generateInvestmentRoadmap(prompt);
   }
 
   static Future<String> _makeCleaningApiCall(String dirtyJson) async {
-    // Try first Gemini API key
-    try {
-      return await _callGeminiCleaningAI(
-          dirtyJson, 'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc');
-    } catch (e) {
-      print('First Gemini cleaning API failed: $e');
-      // Try second Gemini API key
-      try {
-        return await _callGeminiCleaningAI(
-            dirtyJson, 'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM');
-      } catch (fallbackError) {
-        print('Second Gemini cleaning API also failed: $fallbackError');
-        throw Exception('Both Gemini cleaning APIs failed');
-      }
-    }
-  }
-
-  static Future<String> _callGeminiCleaningAI(
-      String dirtyJson, String apiKey) async {
-    final model = GenerativeModel(
-      model: 'gemini-2.0-flash-exp',
-      apiKey: apiKey,
-    );
-
-    const cleaningInstructions = '''
-    IMPORTANT: Your ONLY task is to fix this JSON response.
-    Return ONLY the corrected JSON without any additional text or markdown.
-    Preserve all original content while fixing syntax errors.
-    Ensure the output is valid JSON that can be parsed by Dart's json.decode().
-    ''';
-
-    final prompt = '''
-    $cleaningInstructions
-
-    Here is the JSON to fix:
-    $dirtyJson
-    ''';
-
-    final response = await model.generateContent([Content.text(prompt)]);
-    return response.text ?? '{}';
+    return await _aiService.cleanJsonResponse(dirtyJson);
   }
 
   static Future<void> fallbackMarkdownGeneration({
@@ -370,19 +285,10 @@ IMPORTANT INSTRUCTIONS:
     String currencySymbol,
     String apiKey,
   ) async {
-    final model = GenerativeModel(
-      model: 'gemini-2.0-flash-exp',
-      apiKey: apiKey,
-    );
+    final prompt = _createFallbackPrompt(
+        investmentIdea, budget, currentDate, currencySymbol);
 
-    final response = await model.generateContent([
-      Content.text(
-        _createFallbackPrompt(
-            investmentIdea, budget, currentDate, currencySymbol),
-      ),
-    ]);
-
-    return response.text ?? '';
+    return await _aiService.generateInvestmentRoadmap(prompt);
   }
 
   static String _sanitizeJsonResponse(String rawResponse) {

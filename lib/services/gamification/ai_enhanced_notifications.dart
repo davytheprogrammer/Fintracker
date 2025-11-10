@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../models/gamification/badge_model.dart';
 import '../../models/user_model.dart';
 import '../../repositories/transaction_repository.dart';
 import '../../repositories/goal_repository.dart';
 import '../../services/notification.dart';
+import '../../services/ai_service.dart';
 
 class AIEnhancedNotifications {
-  final GenerativeModel _model;
+  final AIService _aiService = AIService();
   final TransactionRepository _transactionRepository = TransactionRepository();
   final GoalRepository _goalRepository = GoalRepository();
   final NotificationService _notificationService = NotificationService();
-
-  AIEnhancedNotifications(String apiKey)
-      : _model = GenerativeModel(
-          model: 'gemini-2.0-flash-exp',
-          apiKey: apiKey,
-        );
 
   Future<String> generatePersonalizedBadgeMessage(
     BadgeModel badge,
@@ -49,9 +43,7 @@ Generate a short, encouraging congratulatory message (max 100 characters) that:
 Example: "🎉 Amazing! Your first transaction logged. Keep building that savings habit! 💰"
 ''';
 
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final message =
-          response.text?.trim() ?? 'Congratulations on your achievement! 🎉';
+      final message = await _aiService.generateNotificationMessage(prompt);
 
       // Ensure message is not too long
       return message.length > 100 ? message.substring(0, 97) + '...' : message;
@@ -84,9 +76,7 @@ Generate a predictive spending alert (max 120 characters) that:
 Example: "📈 Spending on dining up 25%. Consider meal prepping to save KES 2,000/month for your vacation goal! 🏖️"
 ''';
 
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final message =
-          response.text?.trim() ?? 'Keep an eye on your spending patterns! 💡';
+      final message = await _aiService.generateNotificationMessage(prompt);
 
       return message.length > 120 ? message.substring(0, 117) + '...' : message;
     } catch (e) {
@@ -116,9 +106,7 @@ Generate a motivational message (max 100 characters) that:
 Example: "🚀 Halfway to your dream vacation! Just 3 more months of consistent saving! 💪"
 ''';
 
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final message =
-          response.text?.trim() ?? 'Keep pushing towards your goals! 💪';
+      final message = await _aiService.generateNotificationMessage(prompt);
 
       return message.length > 100 ? message.substring(0, 97) + '...' : message;
     } catch (e) {
@@ -149,9 +137,7 @@ Generate an exciting encouragement message (max 90 characters) that:
 Example: "🔥 7-day savings streak! You're building wealth super fast! 🚀"
 ''';
 
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final message =
-          response.text?.trim() ?? '🔥 Amazing streak! Keep it going!';
+      final message = await _aiService.generateNotificationMessage(prompt);
 
       return message.length > 90 ? message.substring(0, 87) + '...' : message;
     } catch (e) {

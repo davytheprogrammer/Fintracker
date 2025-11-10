@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import '../../services/ai_service.dart';
 
 import '../../models/user_model.dart';
 import '../../services/user_services.dart';
@@ -27,6 +26,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final UserService _userService = UserService();
+  final AIService _aiService = AIService();
   final String _prefsKeyInsights = 'ai_financial_insights';
   final String _prefsKeyTimestamp = 'ai_insights_timestamp';
 
@@ -378,94 +378,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   }
 
   Future<String> _callAIAnalytics(String prompt) async {
-    // Try primary API (Together.xyz) first
-    try {
-      return await _callTogetherAI(prompt);
-    } catch (e) {
-      print('Primary AI service failed: $e');
-      // Fall back to first Gemini API
-      try {
-        return await _callGeminiAIPrimary(prompt);
-      } catch (fallbackError1) {
-        print('First Gemini fallback failed: $fallbackError1');
-        // Fall back to second Gemini API
-        try {
-          return await _callGeminiAISecondary(prompt);
-        } catch (fallbackError2) {
-          print('Second Gemini fallback also failed: $fallbackError2');
-          throw Exception(
-              'All AI services failed. Primary: $e, Fallback1: $fallbackError1, Fallback2: $fallbackError2');
-        }
-      }
-    }
-  }
-
-  Future<String> _callTogetherAI(String prompt) async {
-    const apiUrl = "https://api.together.xyz/v1/chat/completions";
-    const apiKey =
-        "4db152889da5afebdba262f90e4cdcf12976ee8b48d9135c2bb86ef9b0d12bdd";
-
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $apiKey",
-      },
-      body: json.encode({
-        "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
-        "messages": [
-          {
-            "role": "system",
-            "content":
-                "You are a friendly financial advisor. Provide helpful, encouraging advice. and do not provide a too long text",
-          },
-          {"role": "user", "content": prompt},
-        ],
-        "temperature": 0.7,
-        "max_tokens": 300,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['choices'][0]['message']['content'].trim();
-    } else {
-      throw Exception('Together AI failed: ${response.statusCode}');
-    }
-  }
-
-  Future<String> _callGeminiAIPrimary(String prompt) async {
-    const apiKey = 'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc';
-    final model = GenerativeModel(
-      model: 'gemini-2.0-flash-exp',
-      apiKey: apiKey,
-    );
-
-    final content = [Content.text(prompt)];
-    final response = await model.generateContent(content);
-
-    if (response.text != null && response.text!.isNotEmpty) {
-      return response.text!.trim();
-    } else {
-      throw Exception('Gemini AI Primary returned empty response');
-    }
-  }
-
-  Future<String> _callGeminiAISecondary(String prompt) async {
-    const apiKey = 'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM';
-    final model = GenerativeModel(
-      model: 'gemini-2.0-flash-exp',
-      apiKey: apiKey,
-    );
-
-    final content = [Content.text(prompt)];
-    final response = await model.generateContent(content);
-
-    if (response.text != null && response.text!.isNotEmpty) {
-      return response.text!.trim();
-    } else {
-      throw Exception('Gemini AI Secondary returned empty response');
-    }
+    return await _aiService.generateFinancialInsights(prompt);
   }
 
   void _showErrorSnackbar(String message) {

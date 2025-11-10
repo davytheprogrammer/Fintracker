@@ -1,143 +1,179 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// ignore: depend_on_referenced_packages
-import 'package:timezone/timezone.dart' as tz;
-// ignore: depend_on_referenced_packages
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
   // Initialize the service
   Future<void> init() async {
-    tz.initializeTimeZones();
-
-    const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings settings = InitializationSettings(
-      android: androidSettings,
+    await AwesomeNotifications().initialize(
+      'resource://drawable/res_app_icon',
+      [
+        NotificationChannel(
+          channelKey: 'daily_finance_reminder',
+          channelName: 'Finance Reminders',
+          channelDescription: 'Daily reminders to update financial data',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+        ),
+        NotificationChannel(
+          channelKey: 'budget_warnings',
+          channelName: 'Budget Warnings',
+          channelDescription: 'Alerts for budget thresholds',
+          defaultColor: Colors.red,
+          ledColor: Colors.red,
+          importance: NotificationImportance.Max,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+        ),
+        NotificationChannel(
+          channelKey: 'usage_limits',
+          channelName: 'Usage Limits',
+          channelDescription: 'Daily usage limit notifications',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableVibration: true,
+        ),
+        NotificationChannel(
+          channelKey: 'badge_unlocks',
+          channelName: 'Badge Unlocks',
+          channelDescription: 'Notifications for unlocked badges',
+          defaultColor: const Color(0xFF6C63FF),
+          ledColor: const Color(0xFF6C63FF),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+        ),
+        NotificationChannel(
+          channelKey: 'streak_milestones',
+          channelName: 'Streak Milestones',
+          channelDescription: 'Notifications for streak achievements',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.Default,
+          channelShowBadge: true,
+          playSound: true,
+        ),
+        NotificationChannel(
+          channelKey: 'streak_resets',
+          channelName: 'Streak Resets',
+          channelDescription: 'Notifications when streaks are broken',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white,
+          importance: NotificationImportance.Low,
+          channelShowBadge: true,
+          playSound: false,
+        ),
+        NotificationChannel(
+          channelKey: 'ai_enhanced_notifications',
+          channelName: 'AI Enhanced Notifications',
+          channelDescription: 'Personalized notifications powered by AI',
+          defaultColor: const Color(0xFF6C63FF),
+          ledColor: const Color(0xFF6C63FF),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+        ),
+      ],
     );
 
-    await notificationsPlugin.initialize(settings);
+    // Request permissions
+    await AwesomeNotifications().requestPermissionToSendNotifications();
   }
 
   // Schedule daily financial reminder (9 AM)
   Future<void> scheduleDailyFinancialReminder() async {
-    await notificationsPlugin.zonedSchedule(
-      1,
-      '💰 Financial Checkup',
-      'Update your finances today! Keep your analytics accurate.',
-      _nextDailyTime(9, 0), // 9:00 AM daily
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'daily_finance_reminder',
-          'Finance Reminders',
-          channelDescription: 'Daily reminders to update financial data',
-          importance: Importance.high,
-          priority: Priority.high,
-          enableVibration: true,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 1,
+        channelKey: 'daily_finance_reminder',
+        title: '💰 Financial Checkup',
+        body: 'Update your finances today! Keep your analytics accurate.',
+        notificationLayout: NotificationLayout.Default,
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
+      schedule: NotificationCalendar(
+        hour: 9,
+        minute: 0,
+        second: 0,
+        repeats: true,
+      ),
     );
   }
 
   // Notify when budget reaches critical thresholds
   Future<void> notifyBudgetWarning(String message) async {
-    await notificationsPlugin.show(
-      2,
-      '⚠️ Budget Alert',
-      message,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'budget_warnings',
-          'Budget Warnings',
-          channelDescription: 'Alerts for budget thresholds',
-          importance: Importance.max,
-          priority: Priority.high,
-          colorized: true,
-          color: Colors.red,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 2,
+        channelKey: 'budget_warnings',
+        title: '⚠️ Budget Alert',
+        body: message,
+        notificationLayout: NotificationLayout.Default,
+        color: Colors.red,
       ),
     );
   }
 
   // Notify about daily usage limits
   Future<void> notifyDailyLimit(String message) async {
-    await notificationsPlugin.show(
-      3,
-      '🔔 Usage Alert',
-      message,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'usage_limits',
-          'Usage Limits',
-          channelDescription: 'Daily usage limit notifications',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 3,
+        channelKey: 'usage_limits',
+        title: '🔔 Usage Alert',
+        body: message,
+        notificationLayout: NotificationLayout.Default,
       ),
     );
   }
 
   // Gamification-specific notifications
   Future<void> notifyBadgeUnlocked(String badgeName, String description) async {
-    await notificationsPlugin.show(
-      100,
-      '🏆 Badge Unlocked!',
-      'Congratulations! You earned "$badgeName"',
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'badge_unlocks',
-          'Badge Unlocks',
-          channelDescription: 'Notifications for unlocked badges',
-          importance: Importance.high,
-          priority: Priority.high,
-          color: Color(0xFF6C63FF),
-          enableLights: true,
-          enableVibration: true,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 100,
+        channelKey: 'badge_unlocks',
+        title: '🏆 Badge Unlocked!',
+        body: 'Congratulations! You earned "$badgeName"',
+        notificationLayout: NotificationLayout.Default,
       ),
     );
   }
 
   Future<void> notifyStreakMilestone(String streakName, int count) async {
-    await notificationsPlugin.show(
-      101,
-      '🔥 Streak Alert!',
-      'Amazing! $count days on your $streakName streak!',
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'streak_milestones',
-          'Streak Milestones',
-          channelDescription: 'Notifications for streak achievements',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 101,
+        channelKey: 'streak_milestones',
+        title: '🔥 Streak Alert!',
+        body: 'Amazing! $count days on your $streakName streak!',
+        notificationLayout: NotificationLayout.Default,
       ),
     );
   }
 
   Future<void> notifyStreakBroken(String streakName) async {
-    await notificationsPlugin.show(
-      102,
-      '💔 Streak Reset',
-      'Your $streakName streak has been reset. Keep going!',
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'streak_resets',
-          'Streak Resets',
-          channelDescription: 'Notifications when streaks are broken',
-          importance: Importance.low,
-          priority: Priority.low,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 102,
+        channelKey: 'streak_resets',
+        title: '💔 Streak Reset',
+        body: 'Your $streakName streak has been reset. Keep going!',
+        notificationLayout: NotificationLayout.Default,
       ),
     );
   }
@@ -152,41 +188,15 @@ class NotificationService {
     final id =
         badgeId?.hashCode ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-    await notificationsPlugin.show(
-      id,
-      title,
-      body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'ai_enhanced_notifications',
-          'AI Enhanced Notifications',
-          channelDescription: 'Personalized notifications powered by AI',
-          importance: Importance.high,
-          priority: Priority.high,
-          color: const Color(0xFF6C63FF),
-          enableLights: true,
-          enableVibration: true,
-          // category: category, // Commented out due to type mismatch
-          tag: badgeId, // For grouping related notifications
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: id,
+        channelKey: 'ai_enhanced_notifications',
+        title: title,
+        body: body,
+        notificationLayout: NotificationLayout.Default,
+        payload: {'badgeId': badgeId ?? '', 'category': category ?? ''},
       ),
     );
-  }
-
-  // Helper to calculate next daily time
-  tz.TZDateTime _nextDailyTime(int hour, int minute) {
-    final now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-    return scheduledDate;
   }
 }
