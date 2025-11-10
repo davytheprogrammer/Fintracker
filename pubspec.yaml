@@ -40,7 +40,7 @@ dependencies:
   
 
 
-  awesome_notifications: ^0.9.3+1
+  awesome_notifications: ^0.10.1
 
   firebase_core: ^2.24.2
   firebase_auth: ^4.16.0
