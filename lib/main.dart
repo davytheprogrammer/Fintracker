@@ -10,6 +10,7 @@ import 'wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'providers/user_provider.dart';
 import 'providers/transaction_provider.dart';
+import 'providers/gamification_provider.dart';
 
 class Routes {
   static const String app = '/app';
@@ -26,6 +27,12 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProxyProvider<UserProvider, GamificationProvider>(
+          create: (context) => GamificationProvider(
+              Provider.of<UserProvider>(context, listen: false)),
+          update: (context, userProvider, previous) =>
+              previous ?? GamificationProvider(userProvider),
+        ),
       ],
       child: const MyApp(),
     ),

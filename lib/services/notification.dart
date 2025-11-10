@@ -87,6 +87,92 @@ class NotificationService {
     );
   }
 
+  // Gamification-specific notifications
+  Future<void> notifyBadgeUnlocked(String badgeName, String description) async {
+    await notificationsPlugin.show(
+      100,
+      '🏆 Badge Unlocked!',
+      'Congratulations! You earned "$badgeName"',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'badge_unlocks',
+          'Badge Unlocks',
+          channelDescription: 'Notifications for unlocked badges',
+          importance: Importance.high,
+          priority: Priority.high,
+          color: Color(0xFF6C63FF),
+          enableLights: true,
+          enableVibration: true,
+        ),
+      ),
+    );
+  }
+
+  Future<void> notifyStreakMilestone(String streakName, int count) async {
+    await notificationsPlugin.show(
+      101,
+      '🔥 Streak Alert!',
+      'Amazing! $count days on your $streakName streak!',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'streak_milestones',
+          'Streak Milestones',
+          channelDescription: 'Notifications for streak achievements',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+        ),
+      ),
+    );
+  }
+
+  Future<void> notifyStreakBroken(String streakName) async {
+    await notificationsPlugin.show(
+      102,
+      '💔 Streak Reset',
+      'Your $streakName streak has been reset. Keep going!',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'streak_resets',
+          'Streak Resets',
+          channelDescription: 'Notifications when streaks are broken',
+          importance: Importance.low,
+          priority: Priority.low,
+        ),
+      ),
+    );
+  }
+
+  // AI-enhanced notifications
+  Future<void> showAINotification({
+    required String title,
+    required String body,
+    String? badgeId,
+    String? category,
+  }) async {
+    final id =
+        badgeId?.hashCode ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    await notificationsPlugin.show(
+      id,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'ai_enhanced_notifications',
+          'AI Enhanced Notifications',
+          channelDescription: 'Personalized notifications powered by AI',
+          importance: Importance.high,
+          priority: Priority.high,
+          color: const Color(0xFF6C63FF),
+          enableLights: true,
+          enableVibration: true,
+          // category: category, // Commented out due to type mismatch
+          tag: badgeId, // For grouping related notifications
+        ),
+      ),
+    );
+  }
+
   // Helper to calculate next daily time
   tz.TZDateTime _nextDailyTime(int hour, int minute) {
     final now = tz.TZDateTime.now(tz.local);

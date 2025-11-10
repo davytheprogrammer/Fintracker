@@ -1,9 +1,18 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/transaction_model.dart';
 import '../repositories/transaction_repository.dart';
+import 'gamification_provider.dart';
+import 'package:provider/provider.dart';
 
 class TransactionProvider with ChangeNotifier {
   final TransactionRepository _transactionRepository = TransactionRepository();
+
+  // BuildContext is needed for Provider access
+  BuildContext? _context;
+  void setContext(BuildContext context) {
+    _context = context;
+  }
 
   List<TransactionModel> _transactions = [];
   bool _isLoading = false;
@@ -126,6 +135,18 @@ class TransactionProvider with ChangeNotifier {
 
       // Refresh summary
       await _loadSummary(transaction.uid);
+
+      // Trigger gamification events
+      try {
+        if (_context != null) {
+          final gamificationProvider =
+              Provider.of<GamificationProvider>(_context!, listen: false);
+          await gamificationProvider.onTransactionLogged();
+        }
+      } catch (e) {
+        // Gamification is optional, don't fail transaction if it fails
+        debugPrint('Gamification event failed: $e');
+      }
 
       notifyListeners();
       return true;
