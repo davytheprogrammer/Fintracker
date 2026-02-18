@@ -112,7 +112,7 @@ class UserRepository {
       if (uid.isEmpty) throw Exception('User UID cannot be empty');
 
       final updates = <String, dynamic>{};
-      if (name != null) updates['name'] = name;
+      if (name != null) updates['displayName'] = name;
       if (email != null) updates['email'] = email;
       if (incomeRange != null) updates['incomeRange'] = incomeRange;
       if (ageRange != null) updates['ageRange'] = ageRange;

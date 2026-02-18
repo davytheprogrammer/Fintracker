@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// Fallback fonts to ensure emoji glyphs render when the primary font lacks them.
+const List<String> _emojiFallback = ['NotoColorEmoji'];
+
 // ============================================================================
 // FinSpense Design System - Next Generation Financial Tracking
 // ============================================================================
@@ -102,6 +105,7 @@ class AppTypography {
     fontWeight: FontWeight.w700,
     letterSpacing: -0.25,
     height: 1.12,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const displayMedium = TextStyle(
@@ -109,6 +113,7 @@ class AppTypography {
     fontWeight: FontWeight.w700,
     letterSpacing: 0,
     height: 1.16,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const displaySmall = TextStyle(
@@ -116,6 +121,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.22,
+    fontFamilyFallback: _emojiFallback,
   );
 
   // Headline Styles
@@ -124,6 +130,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.25,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const headlineMedium = TextStyle(
@@ -131,6 +138,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.29,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const headlineSmall = TextStyle(
@@ -138,6 +146,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
     height: 1.33,
+    fontFamilyFallback: _emojiFallback,
   );
 
   // Title Styles
@@ -146,6 +155,7 @@ class AppTypography {
     fontWeight: FontWeight.w500,
     letterSpacing: 0,
     height: 1.27,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const titleMedium = TextStyle(
@@ -153,6 +163,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.15,
     height: 1.5,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const titleSmall = TextStyle(
@@ -160,6 +171,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0.1,
     height: 1.43,
+    fontFamilyFallback: _emojiFallback,
   );
 
   // Body Styles
@@ -168,6 +180,7 @@ class AppTypography {
     fontWeight: FontWeight.w400,
     letterSpacing: 0.5,
     height: 1.5,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const bodyMedium = TextStyle(
@@ -175,6 +188,7 @@ class AppTypography {
     fontWeight: FontWeight.w400,
     letterSpacing: 0.25,
     height: 1.43,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const bodySmall = TextStyle(
@@ -182,6 +196,7 @@ class AppTypography {
     fontWeight: FontWeight.w400,
     letterSpacing: 0.4,
     height: 1.33,
+    fontFamilyFallback: _emojiFallback,
   );
 
   // Label Styles
@@ -190,6 +205,7 @@ class AppTypography {
     fontWeight: FontWeight.w500,
     letterSpacing: 0.1,
     height: 1.43,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const labelMedium = TextStyle(
@@ -197,6 +213,7 @@ class AppTypography {
     fontWeight: FontWeight.w500,
     letterSpacing: 0.5,
     height: 1.33,
+    fontFamilyFallback: _emojiFallback,
   );
 
   static const labelSmall = TextStyle(
@@ -204,6 +221,7 @@ class AppTypography {
     fontWeight: FontWeight.w500,
     letterSpacing: 0.5,
     height: 1.45,
+    fontFamilyFallback: _emojiFallback,
   );
 }
 

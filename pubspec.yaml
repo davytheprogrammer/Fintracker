@@ -3,7 +3,7 @@ description: A personal finance app that helps you track your expenses and incom
 
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.2+3
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -34,7 +34,6 @@ dependencies:
 
 
   xml: ^6.3.0
-  google_generative_ai: ^0.4.6
   flutter_timeline: ^0.3.0
   pdf: ^3.11.3
   

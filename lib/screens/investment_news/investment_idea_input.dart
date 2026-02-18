@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/constants.dart';
 
 class InvestmentIdeaInput extends StatefulWidget {
   final TextEditingController ideaController;
@@ -75,132 +76,99 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: widget.isDarkMode ? Colors.grey.shade800 : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+      decoration: glassCardDecoration(isDark: widget.isDarkMode),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Describe Your Investment Idea',
+            style: AppTypography.titleLarge.copyWith(
+              color: widget.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Describe Your Investment Idea',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          const SizedBox(height: AppSpacing.sm),
+          TextFormField(
+            controller: widget.ideaController,
+            decoration: modernInputDecoration(
+              label: 'Investment Idea',
+              icon: Icons.lightbulb_outline,
+              hint: 'E.g., "A subscription service for premium coffee beans..."',
+              isDark: widget.isDarkMode,
+              suffix: _isIdeaValid
+                  ? const Icon(Icons.check_circle, color: AppColors.success)
+                  : null,
+            ).copyWith(
+              errorText: _getIdeaError(),
             ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: widget.ideaController,
-              decoration: InputDecoration(
-                hintText:
-                    'E.g., "A subscription service for premium coffee beans delivered monthly with personalized recommendations"',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: widget.theme.colorScheme.primary,
+            maxLines: 4,
+            style: AppTypography.bodyLarge.copyWith(
+              color: widget.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs, left: AppSpacing.sm),
+            child: Row(
+              children: [
+                Icon(
+                  _isIdeaValid ? Icons.check : Icons.info_outline,
+                  size: 16,
+                  color: _isIdeaValid ? AppColors.success : AppColors.textTertiary,
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  'Minimum 15 characters and 10 words',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: _isIdeaValid ? AppColors.success : AppColors.textTertiary,
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: _isIdeaValid
-                        ? Colors.green
-                        : widget.theme.colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-                filled: true,
-                fillColor: widget.isDarkMode
-                    ? Colors.grey.shade900
-                    : Colors.grey.shade50,
-                contentPadding: const EdgeInsets.all(16),
-                errorText: _getIdeaError(),
-                suffixIcon: _isIdeaValid
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : null,
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Input Budget',
+            style: AppTypography.titleLarge.copyWith(
+              color: widget.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextFormField(
+            controller: widget.budgetController,
+            keyboardType: TextInputType.number,
+            decoration: modernInputDecoration(
+              label: 'Budget (${widget.currencySymbol})',
+              icon: Icons.attach_money,
+              hint: 'E.g., 5000',
+              isDark: widget.isDarkMode,
+              suffix: _isBudgetValid
+                  ? const Icon(Icons.check_circle, color: AppColors.success)
+                  : null,
+            ).copyWith(
+              errorText: _getBudgetError(),
+            ),
+            style: AppTypography.bodyLarge.copyWith(
+              color: widget.isDarkMode ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: Container(
+              decoration: gradientButtonDecoration(
+                colors: AppColors.primaryGradient,
+                radius: AppRadius.md,
               ),
-              maxLines: 4,
-              style: const TextStyle(fontSize: 16),
-              onChanged: (_) => setState(() {}),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4, left: 8),
-              child: Row(
-                children: [
-                  Icon(
-                    _isIdeaValid ? Icons.check : Icons.info_outline,
-                    size: 16,
-                    color: _isIdeaValid ? Colors.green : Colors.grey,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Minimum 15 characters and 10 words',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _isIdeaValid ? Colors.green : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Input Budget',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: widget.budgetController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'E.g., 5000',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: widget.theme.colorScheme.primary,
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: _isBudgetValid
-                        ? Colors.green
-                        : widget.theme.colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-                filled: true,
-                fillColor: widget.isDarkMode
-                    ? Colors.grey.shade900
-                    : Colors.grey.shade50,
-                contentPadding: const EdgeInsets.all(16),
-                errorText: _getBudgetError(),
-                suffixIcon: _isBudgetValid
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : null,
-              ),
-              style: const TextStyle(fontSize: 16),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
               child: ElevatedButton(
                 onPressed: widget.isLoading ? null : widget.onGenerateRoadmap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.theme.colorScheme.primary,
-                  foregroundColor: widget.theme.colorScheme.onPrimary,
-                  elevation: 2,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.md),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -208,32 +176,35 @@ class _InvestmentIdeaInputState extends State<InvestmentIdeaInput> {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              color: widget.theme.colorScheme.onPrimary,
+                              color: Colors.white,
                               strokeWidth: 2,
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          const Text(
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
                             'Generating Roadmap...',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: AppTypography.labelLarge.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       )
-                    : const Text(
+                    : Text(
                         'Generate Investment Roadmap',
-                        style: TextStyle(
+                        style: AppTypography.titleMedium.copyWith(
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
                         ),
                       ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -64,8 +64,41 @@ class TransactionRepository {
     }
   }
 
+  static const double _maxTransactionAmount = 10000000.0;
+  static const double _minTransactionAmount = 0.01;
+
+  /// Validate transaction data before persisting.
+  void _validateTransaction(TransactionModel transaction) {
+    if (transaction.uid.isEmpty) {
+      throw Exception('User ID is required');
+    }
+    if (transaction.amount < _minTransactionAmount) {
+      throw Exception('Amount must be at least $_minTransactionAmount');
+    }
+    if (transaction.amount > _maxTransactionAmount) {
+      throw Exception('Amount cannot exceed $_maxTransactionAmount');
+    }
+    if (transaction.category.trim().isEmpty) {
+      throw Exception('Category is required');
+    }
+    if ((transaction.description ?? '').trim().isEmpty) {
+      throw Exception('Description is required');
+    }
+    if ((transaction.description ?? '').length > 200) {
+      throw Exception('Description must be 200 characters or less');
+    }
+    if (transaction.type != 'income' && transaction.type != 'expense') {
+      throw Exception('Type must be either income or expense');
+    }
+    if (transaction.date.isAfter(DateTime.now().add(const Duration(days: 1)))) {
+      throw Exception('Transaction date cannot be in the future');
+    }
+  }
+
   Future<String> addTransaction(TransactionModel transaction) async {
     try {
+      _validateTransaction(transaction);
+
       final docRef = await _firestore
           .collection('users')
           .doc(transaction.uid)
@@ -280,14 +313,9 @@ class TransactionRepository {
     }
   }
 
-  Future<void> addCategory(String name, String type, {String? icon}) async {
-    try {
-      // For now, just log. In a real app, this would save to Firestore
-      debugPrint('Category added: $name, $type, $icon');
-    } catch (e) {
-      throw Exception('Failed to add category: $e');
-    }
-  }
+  // Note: Categories are currently hardcoded. Custom category persistence
+  // can be added to Firestore in a future iteration if user-defined categories
+  // are needed.
 
   Future<void> syncTransactions(String uid) async {
     try {

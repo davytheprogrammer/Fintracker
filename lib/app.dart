@@ -54,48 +54,55 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: IndexedStack(index: _selectedIndex, children: _pages),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark
-              ? const Color(0xFF1A1A2E)
-              : Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+          child: IndexedStack(index: _selectedIndex, children: _pages),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildModernNavItem(0, Icons.home_rounded, 'Home'),
-                _buildModernNavItem(1, Icons.analytics_rounded, 'Analytics'),
-                _buildModernNavItem(2, Icons.flag_rounded, 'Goals'),
-                _buildModernNavItem(
-                  3,
-                  Icons.account_balance_wallet_rounded,
-                  'Invest',
+        bottomNavigationBar: SizedBox(
+          height: kBottomNavigationBarHeight +
+              MediaQuery.of(context).padding.bottom +
+              24,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1A1A2E)
+                  : Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, -5),
                 ),
-                _buildModernNavItem(4, Icons.person_rounded, 'Profile'),
               ],
             ),
+            child: SafeArea(
+              top: false,
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildModernNavItem(0, Icons.home_rounded, 'Home'),
+                    _buildModernNavItem(
+                        1, Icons.analytics_rounded, 'Analytics'),
+                    _buildModernNavItem(2, Icons.flag_rounded, 'Goals'),
+                    _buildModernNavItem(
+                      3,
+                      Icons.account_balance_wallet_rounded,
+                      'Invest',
+                    ),
+                    _buildModernNavItem(4, Icons.person_rounded, 'Profile'),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildModernNavItem(int index, IconData icon, String label) {
@@ -113,7 +120,7 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             color:
@@ -126,7 +133,7 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isSelected
@@ -136,7 +143,7 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
                 child: Icon(
                   icon,
                   color: isSelected ? primaryColor : inactiveColor,
-                  size: 26,
+                  size: 22,
                 ),
               ),
               const SizedBox(height: 4),
@@ -144,7 +151,7 @@ class _AppState extends State<App> with SingleTickerProviderStateMixin {
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
                   color: isSelected ? primaryColor : inactiveColor,
-                  fontSize: isSelected ? 12 : 11,
+                  fontSize: isSelected ? 11 : 10,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   letterSpacing: 0.5,
                 ),

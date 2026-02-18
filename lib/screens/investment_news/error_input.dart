@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/constants.dart';
 
 class ErrorMessage extends StatelessWidget {
   final String message;
@@ -7,19 +8,28 @@ class ErrorMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.red.shade100,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.red.shade300),
+        color: isDarkMode ? AppColors.error.withOpacity(0.1) : AppColors.errorLight.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(
+          color: isDarkMode ? AppColors.error : AppColors.errorLight,
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.red),
-          const SizedBox(width: 12),
+          Icon(Icons.error_outline, color: AppColors.error),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
-            child: Text(message, style: TextStyle(color: Colors.red.shade900)),
+            child: Text(
+              message,
+              style: AppTypography.bodyMedium.copyWith(
+                color: isDarkMode ? AppColors.errorLight : AppColors.error,
+              ),
+            ),
           ),
         ],
       ),

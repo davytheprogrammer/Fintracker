@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/gamification/streak_model.dart';
@@ -50,7 +51,7 @@ class OfflineSyncService {
         await _processEvent(event);
         syncedEvents.add(event);
       } catch (e) {
-        print('Failed to sync event ${event['id']}: $e');
+        debugPrint('Failed to sync event ${event['id']}: $e');
         // Keep failed events for retry
       }
     }
@@ -96,9 +97,9 @@ class OfflineSyncService {
     try {
       // Simplified streak reset handling
       // In production, implement proper streak tracking
-      print('Streak reset handling for user: $uid');
+      debugPrint('Streak reset handling for user: $uid');
     } catch (e) {
-      print('Error handling streak resets: $e');
+      debugPrint('Error handling streak resets: $e');
     }
   }
 

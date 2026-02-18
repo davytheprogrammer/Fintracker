@@ -50,6 +50,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
   late AnimationController _animationController;
   late Animation<double> _animation;
   bool _isFetchingData = false;
+  bool _aiAnalysisInProgress = false;
 
   // Chart colors
   final List<Color> _categoryColors = [
@@ -134,7 +135,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
       }
     } catch (e) {
       // Cache loading failed, will generate new insights
-      print('Failed to load cached insights: $e');
+      debugPrint('Failed to load cached insights: $e');
     }
   }
 
@@ -147,7 +148,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
         DateTime.now().millisecondsSinceEpoch,
       );
     } catch (e) {
-      print('Failed to cache insights: $e');
+      debugPrint('Failed to cache insights: $e');
     }
   }
 
@@ -155,7 +156,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
     try {
       _userModel = await _userService.getCurrentUserData();
     } catch (e) {
-      print('Failed to load user profile: $e');
+      debugPrint('Failed to load user profile: $e');
     }
   }
 
@@ -178,7 +179,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
         try {
           data['date'] = Timestamp.fromDate(DateTime.parse(data['date']));
         } catch (e) {
-          print(
+          debugPrint(
               'Error parsing date string: ${data['date']}, using current time');
           data['date'] = Timestamp.now();
         }
@@ -220,11 +221,12 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
         try {
           date = DateTime.parse(tx['date']);
         } catch (e) {
-          print('Error parsing date in _generateMonthlyData: ${tx['date']}');
+          debugPrint(
+              'Error parsing date in _generateMonthlyData: ${tx['date']}');
           continue; // Skip this transaction
         }
       } else {
-        print('Unexpected date type: ${tx['date'].runtimeType}');
+        debugPrint('Unexpected date type: ${tx['date'].runtimeType}');
         continue; // Skip this transaction
       }
 
@@ -268,6 +270,8 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
 
   Future<void> _performAIAnalysis() async {
     if (!mounted) return;
+    if (_aiAnalysisInProgress) return;
+    _aiAnalysisInProgress = true;
 
     setState(() {
       _isLoadingAIInsight = true;
@@ -287,7 +291,7 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
       // Cache the new insights
       _cacheInsights(response);
     } catch (e) {
-      print('AI Analysis error: $e');
+      debugPrint('AI Analysis error: $e');
       if (!mounted) return;
 
       _showErrorSnackbar('Unable to generate AI insights');
@@ -296,6 +300,8 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
         _aiInsight =
             "We couldn't generate AI insights at this time. Please try again later.";
       });
+    } finally {
+      _aiAnalysisInProgress = false;
     }
   }
 
@@ -479,10 +485,14 @@ class _AIAnalyticsPageState extends State<AIAnalyticsPage>
             _generateMonthlyData();
 
             // Only perform AI analysis once when we first get data and haven't loaded from cache
-            if (_isLoadingAIInsight &&
+            if (!_aiAnalysisInProgress &&
+                _isLoadingAIInsight &&
                 !_isFetchingData &&
                 _aiInsight == 'Analyzing your financial patterns...') {
-              _performAIAnalysis();
+              _aiAnalysisInProgress = true;
+              _performAIAnalysis().whenComplete(() {
+                _aiAnalysisInProgress = false;
+              });
             }
           });
         } else if (snapshot.hasData &&

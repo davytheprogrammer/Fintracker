@@ -80,7 +80,7 @@ class GamificationService {
         }
       }
     } catch (e) {
-      print('Error checking badges: $e');
+      debugPrint('Error checking badges: $e');
     }
   }
 
@@ -114,7 +114,7 @@ class GamificationService {
             lastUpdated: DateTime.now(),
           ));
     } catch (e) {
-      print('Error updating streaks: $e');
+      debugPrint('Error updating streaks: $e');
     }
   }
 
@@ -142,7 +142,7 @@ class GamificationService {
           return false;
       }
     } catch (e) {
-      print('Error checking badge criteria: $e');
+      debugPrint('Error checking badge criteria: $e');
       return false;
     }
   }
@@ -176,7 +176,7 @@ class GamificationService {
 
       await batch.commit();
     } catch (e) {
-      print('Error awarding badge: $e');
+      debugPrint('Error awarding badge: $e');
       throw e;
     }
   }
@@ -186,7 +186,7 @@ class GamificationService {
       await _notificationService.notifyBadgeUnlocked(
           badge.name, badge.description);
     } catch (e) {
-      print('Error sending badge notification: $e');
+      debugPrint('Error sending badge notification: $e');
     }
   }
 
@@ -194,7 +194,7 @@ class GamificationService {
     try {
       await _notificationService.notifyStreakBroken(streakName);
     } catch (e) {
-      print('Error sending streak reset notification: $e');
+      debugPrint('Error sending streak reset notification: $e');
     }
   }
 
@@ -291,7 +291,7 @@ class GamificationService {
         ...statsDoc.data()!,
       });
     } catch (e) {
-      print('Error getting gamification data: $e');
+      debugPrint('Error getting gamification data: $e');
       return null;
     }
   }
@@ -306,7 +306,7 @@ class GamificationService {
           .doc('progress')
           .set(data.toMap(), SetOptions(merge: true));
     } catch (e) {
-      print('Error saving gamification data: $e');
+      debugPrint('Error saving gamification data: $e');
       throw e;
     }
   }
@@ -317,7 +317,7 @@ class GamificationService {
           await _transactionRepository.getTransactions(uid: uid);
       return transactions.length;
     } catch (e) {
-      print('Error getting transaction count: $e');
+      debugPrint('Error getting transaction count: $e');
       return 0;
     }
   }
@@ -343,7 +343,7 @@ class GamificationService {
           0, (sum, goal) => sum + goal.progressPercentage * 100);
       return totalProgress / goals.length;
     } catch (e) {
-      print('Error getting savings goal progress: $e');
+      debugPrint('Error getting savings goal progress: $e');
       return 0;
     }
   }

@@ -44,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       }
     } catch (e) {
-      print('Error loading settings: $e');
+      debugPrint('Error loading settings: $e');
     }
   }
 
@@ -52,7 +52,8 @@ class _SettingsPageState extends State<SettingsPage> {
     if (_feedbackController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter your feedback')));
+      ).showSnackBar(
+          const SnackBar(content: Text('Please enter your feedback')));
       return;
     }
 
@@ -69,7 +70,8 @@ class _SettingsPageState extends State<SettingsPage> {
       _feedbackController.clear();
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Thank you for your feedback!')));
+      ).showSnackBar(
+          const SnackBar(content: Text('Thank you for your feedback!')));
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -126,7 +128,8 @@ class _SettingsPageState extends State<SettingsPage> {
       Navigator.pop(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Password updated successfully')));
+      ).showSnackBar(
+          const SnackBar(content: Text('Password updated successfully')));
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'An error occurred';
       if (e.code == 'wrong-password') {
@@ -146,7 +149,8 @@ class _SettingsPageState extends State<SettingsPage> {
     if (confirmText != 'DELETE') {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please type DELETE to confirm')));
+      ).showSnackBar(
+          const SnackBar(content: Text('Please type DELETE to confirm')));
       return;
     }
 
@@ -228,7 +232,8 @@ class _SettingsPageState extends State<SettingsPage> {
               } catch (e) {
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('Invalid password')));
+                ).showSnackBar(
+                    const SnackBar(content: Text('Invalid password')));
               }
             },
           ),
@@ -252,10 +257,35 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            try {
+              // Prefer a normal pop if there is a previous route in this Navigator.
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+                return;
+              }
+
+              // If there is no route to pop (page is inside an IndexedStack/tab),
+              // avoid popping the root (which could exit or freeze the app).
+              // Instead, provide a lightweight in-memory fallback: show a hint
+              // and let the user switch tabs using the bottom navigation.
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Use the bottom navigation to go back.'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            } catch (e) {
+              debugPrint('Back handler failed: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Unable to go back.')),
+              );
+            }
+          },
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.logout), onPressed: () => _logout()),
+          IconButton(
+              icon: const Icon(Icons.logout), onPressed: () => _logout()),
         ],
         backgroundColor: Colors.white, // Light pink gradient
         elevation: 0,
@@ -463,8 +493,9 @@ class _SettingsPageState extends State<SettingsPage> {
               radius: 30,
               backgroundImage:
                   user?.photoURL != null ? NetworkImage(user!.photoURL!) : null,
-              child:
-                  user?.photoURL == null ? const Icon(Icons.person, size: 30) : null,
+              child: user?.photoURL == null
+                  ? const Icon(Icons.person, size: 30)
+                  : null,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -612,7 +643,8 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Delete Account", style: TextStyle(color: Colors.red)),
+        title:
+            const Text("Delete Account", style: TextStyle(color: Colors.red)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -653,7 +685,8 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text("DELETE ACCOUNT", style: TextStyle(color: Colors.red)),
+            child: const Text("DELETE ACCOUNT",
+                style: TextStyle(color: Colors.red)),
             onPressed: () => _deleteAccount(confirmController.text),
           ),
         ],

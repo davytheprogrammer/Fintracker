@@ -16,7 +16,7 @@ class Wrapper extends StatefulWidget {
 }
 
 class _WrapperState extends State<Wrapper> {
-  bool _hasInitialized = false;
+  String? _lastInitializedUid;
 
   @override
   Widget build(BuildContext context) {
@@ -24,32 +24,37 @@ class _WrapperState extends State<Wrapper> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     if (user == null) {
-      // Reset initialization flag when user logs out
-      _hasInitialized = false;
+      // User logged out — reset tracked UID
+      _lastInitializedUid = null;
       return const Authenticate();
     }
 
-    // Initialize user provider with current user only once
-    if (!_hasInitialized && user.uid != null && !userProvider.isAuthenticated) {
-      _hasInitialized = true;
+    // Initialize user provider only once per unique UID to prevent race conditions
+    if (user.uid != null &&
+        user.uid != _lastInitializedUid &&
+        !userProvider.isAuthenticated) {
+      _lastInitializedUid = user.uid;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !userProvider.isAuthenticated) {
-          debugPrint(
-              'Wrapper: Initializing user provider for uid: ${user.uid}');
+          debugPrint('Wrapper: Initializing user provider for uid: ${user.uid}');
           userProvider.signIn(user.uid!);
         }
       });
     }
 
-    // Use UserProvider to check onboarding status
+    // Show loading indicator during auth state transitions
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
-        // Check if user is authenticated and has completed onboarding
+        if (userProvider.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
         final hasCompletedOnboarding = userProvider.isAuthenticated &&
             userProvider.currentUser?.currency != null;
-
-        debugPrint(
-            'Wrapper: User authenticated: ${userProvider.isAuthenticated}, hasCompletedOnboarding: $hasCompletedOnboarding');
 
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),

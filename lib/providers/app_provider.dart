@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../shared/constants.dart';
 
-enum ThemeMode { light, dark, system }
+enum AppThemeMode { light, dark, system }
 
 enum ConnectivityStatus { none, wifi, mobile, ethernet }
 
 class AppProvider with ChangeNotifier {
   // Theme management
-  ThemeMode _themeMode = ThemeMode.system;
+  AppThemeMode _themeMode = AppThemeMode.system;
   bool _isDarkMode = false;
 
   // Connectivity
@@ -16,7 +17,7 @@ class AppProvider with ChangeNotifier {
 
   // App state
   bool _isInitialized = false;
-  String? _appVersion;
+  String _appVersion = '1.0.0';
   Locale _locale = const Locale('en');
 
   // Loading states
@@ -24,43 +25,52 @@ class AppProvider with ChangeNotifier {
   String? _globalLoadingMessage;
 
   // Getters
-  ThemeMode get themeMode => _themeMode;
+  AppThemeMode get themeMode => _themeMode;
   bool get isDarkMode => _isDarkMode;
   ConnectivityStatus get connectivityStatus => _connectivityStatus;
   bool get isOnline => _isOnline;
   bool get isInitialized => _isInitialized;
-  String? get appVersion => _appVersion;
+  String get appVersion => _appVersion;
   Locale get locale => _locale;
   bool get isGlobalLoading => _isGlobalLoading;
   String? get globalLoadingMessage => _globalLoadingMessage;
 
   // Theme methods
-  void setThemeMode(ThemeMode mode) {
+  void setThemeMode(AppThemeMode mode) {
     _themeMode = mode;
     _updateDarkMode();
+    _saveThemePreference(mode);
     notifyListeners();
   }
 
   void toggleTheme() {
     _themeMode =
-        _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+        _themeMode == AppThemeMode.light ? AppThemeMode.dark : AppThemeMode.light;
     _updateDarkMode();
+    _saveThemePreference(_themeMode);
     notifyListeners();
   }
 
   void _updateDarkMode() {
     switch (_themeMode) {
-      case ThemeMode.light:
+      case AppThemeMode.light:
         _isDarkMode = false;
         break;
-      case ThemeMode.dark:
+      case AppThemeMode.dark:
         _isDarkMode = true;
         break;
-      case ThemeMode.system:
-        // This would typically check system preference
-        // For now, default to light mode
+      case AppThemeMode.system:
         _isDarkMode = false;
         break;
+    }
+  }
+
+  Future<void> _saveThemePreference(AppThemeMode mode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('theme_mode', mode.name);
+    } catch (e) {
+      debugPrint('Failed to save theme preference: $e');
     }
   }
 
@@ -78,11 +88,8 @@ class AppProvider with ChangeNotifier {
     try {
       _setGlobalLoading(true, 'Initializing app...');
 
-      // Initialize connectivity monitoring
-      await _initializeConnectivity();
-
-      // Load app version
-      await _loadAppVersion();
+      // Initialize connectivity — assume online for now
+      updateConnectivityStatus(ConnectivityStatus.wifi);
 
       // Load saved preferences
       await _loadSavedPreferences();
@@ -95,31 +102,44 @@ class AppProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _initializeConnectivity() async {
-    try {
-      // TODO: Initialize connectivity monitoring when connectivity_plus is added
-      // For now, assume online
-      updateConnectivityStatus(ConnectivityStatus.wifi);
-    } catch (e) {
-      debugPrint('Failed to initialize connectivity: $e');
-    }
-  }
-
-  Future<void> _loadAppVersion() async {
-    // TODO: Load app version from package info
-    // For now, set a placeholder
-    _appVersion = '1.0.0';
-  }
-
   Future<void> _loadSavedPreferences() async {
-    // TODO: Load saved theme preference, locale, etc. from shared preferences
-    // For now, use defaults
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Load theme
+      final savedTheme = prefs.getString('theme_mode');
+      if (savedTheme != null) {
+        _themeMode = AppThemeMode.values.firstWhere(
+          (e) => e.name == savedTheme,
+          orElse: () => AppThemeMode.system,
+        );
+        _updateDarkMode();
+      }
+
+      // Load locale
+      final savedLocale = prefs.getString('locale');
+      if (savedLocale != null) {
+        _locale = Locale(savedLocale);
+      }
+    } catch (e) {
+      debugPrint('Failed to load saved preferences: $e');
+    }
   }
 
   // Locale methods
   void setLocale(Locale locale) {
     _locale = locale;
+    _saveLocalePreference(locale);
     notifyListeners();
+  }
+
+  Future<void> _saveLocalePreference(Locale locale) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('locale', locale.languageCode);
+    } catch (e) {
+      debugPrint('Failed to save locale preference: $e');
+    }
   }
 
   // Global loading methods
@@ -151,13 +171,10 @@ class AppProvider with ChangeNotifier {
         primary: AppColors.primary,
         secondary: AppColors.accent,
         surface: isDark ? AppColors.surfaceDark : AppColors.surface,
-        background: isDark ? AppColors.backgroundDark : AppColors.background,
         error: AppColors.error,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
-        onBackground:
-            isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         onError: Colors.white,
       ),
 
@@ -293,21 +310,9 @@ class AppProvider with ChangeNotifier {
 
   // Utility methods
   void resetToDefaults() {
-    _themeMode = ThemeMode.system;
+    _themeMode = AppThemeMode.system;
     _locale = const Locale('en');
     _updateDarkMode();
     notifyListeners();
-  }
-
-  // Debug methods
-  void printCurrentState() {
-    debugPrint('AppProvider State:');
-    debugPrint('  Theme Mode: $_themeMode');
-    debugPrint('  Is Dark Mode: $_isDarkMode');
-    debugPrint('  Connectivity: $_connectivityStatus');
-    debugPrint('  Is Online: $_isOnline');
-    debugPrint('  Is Initialized: $_isInitialized');
-    debugPrint('  Locale: $_locale');
-    debugPrint('  Global Loading: $_isGlobalLoading');
   }
 }

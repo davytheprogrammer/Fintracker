@@ -214,16 +214,7 @@ class TransactionProvider with ChangeNotifier {
     }
   }
 
-  // Add new category
-  Future<bool> addCategory(String name, String type, {String? icon}) async {
-    try {
-      await _transactionRepository.addCategory(name, type, icon: icon);
-      return true;
-    } catch (e) {
-      _errorMessage = 'Failed to add category: $e';
-      return false;
-    }
-  }
+
 
   // Filter methods
   void setDateRange(DateTime? start, DateTime? end) {

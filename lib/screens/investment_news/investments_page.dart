@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/user_services.dart';
+import '../../shared/constants.dart';
 import 'daily_usage_manager.dart';
 import 'roadmap_generator.dart';
 import 'error_logger.dart';
@@ -7,7 +8,7 @@ import 'pdf_generator.dart';
 import 'ui_elements.dart';
 
 class InvestmentsPage extends StatefulWidget {
-  const InvestmentsPage({Key? key}) : super(key: key);
+  const InvestmentsPage({super.key});
 
   @override
   _InvestmentsPageState createState() => _InvestmentsPageState();
@@ -17,8 +18,6 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
   final TextEditingController _ideaController = TextEditingController();
   final TextEditingController _budgetController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final scaffoldKey =
-      GlobalKey<ScaffoldMessengerState>(); // Added for snackbars
   final UserService _userService = UserService();
 
   bool _isLoading = false;
@@ -55,12 +54,15 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
   void _showSnackBar(String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
+        content: Text(
+          message,
+          style: AppTypography.bodyMedium.copyWith(color: Colors.white),
+        ),
+        backgroundColor: isError ? AppColors.error : AppColors.success,
         duration: Duration(seconds: isError ? 4 : 2),
         behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        margin: const EdgeInsets.all(AppSpacing.md),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
         action: isError
             ? SnackBarAction(
                 label: 'DISMISS',
@@ -96,9 +98,11 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
   Future<void> _loadUserCurrency() async {
     try {
       final userModel = await _userService.getCurrentUserData();
-      setState(() {
-        _currencySymbol = userModel.currency?.symbol ?? 'KES';
-      });
+      if (mounted) {
+        setState(() {
+          _currencySymbol = userModel.currency?.symbol ?? 'KES';
+        });
+      }
     } catch (e) {
       logError('Error loading user currency', e);
     }
@@ -178,39 +182,45 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         ideaController: _ideaController,
         budgetController: _budgetController,
         onSuccess: (data) async {
+          if (!mounted) return;
           setState(() {
             _roadmapData = data;
             _isLoading = false;
           });
           await _incrementDailyUsage();
-          _showSnackBar('Roadmap generated successfully!');
+          if (mounted) _showSnackBar('Roadmap generated successfully!');
         },
         onError: (e) async {
           logError('Primary API call error', e);
           await _fallbackMarkdownGeneration();
         },
         onFallback: (fallbackData) async {
+          if (!mounted) return;
           setState(() {
             _roadmapData = fallbackData;
             _isLoading = false;
           });
           await _incrementDailyUsage();
-          _showSnackBar('Roadmap generated using fallback system');
+          if (mounted) _showSnackBar('Roadmap generated using fallback system');
         },
         onFallbackError: (e) {
           logError('Fallback API call error', e);
-          setState(() {
-            _isLoading = false;
-            _errorMessage =
-                'Failed to generate roadmap. Please try again later.';
-          });
-          _showSnackBar('Failed to generate roadmap', isError: true);
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage =
+                  'Failed to generate roadmap. Please try again later.';
+            });
+            _showSnackBar('Failed to generate roadmap', isError: true);
+          }
         },
       );
     } catch (e) {
       logError('Unexpected error in _generateRoadmap', e);
-      setState(() => _isLoading = false);
-      _showSnackBar('An unexpected error occurred', isError: true);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _showSnackBar('An unexpected error occurred', isError: true);
+      }
     }
   }
 
@@ -234,30 +244,35 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
         ideaController: _ideaController,
         budgetController: _budgetController,
         onSuccess: (fallbackData) async {
+          if (!mounted) return;
           setState(() {
             _roadmapData = fallbackData;
             _isLoading = false;
           });
           await _incrementDailyUsage();
-          _showSnackBar('Roadmap generated using backup system');
+          if (mounted) _showSnackBar('Roadmap generated using backup system');
         },
         onError: (e) {
           logError('Fallback API call error', e);
-          setState(() {
-            _isLoading = false;
-            _errorMessage =
-                'Failed to generate roadmap. Please try again later.';
-          });
-          _showSnackBar(
-            'All attempts to generate roadmap failed',
-            isError: true,
-          );
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _errorMessage =
+                  'Failed to generate roadmap. Please try again later.';
+            });
+            _showSnackBar(
+              'All attempts to generate roadmap failed',
+              isError: true,
+            );
+          }
         },
       );
     } catch (e) {
       logError('Unexpected error in _fallbackMarkdownGeneration', e);
-      setState(() => _isLoading = false);
-      _showSnackBar('An unexpected error occurred', isError: true);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        _showSnackBar('An unexpected error occurred', isError: true);
+      }
     }
   }
 
@@ -316,14 +331,27 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Investment Roadmap Generator',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
+        backgroundColor: Colors.transparent, // Glassmorphism effect or gradient background
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.primary.withOpacity(0.9),
+                theme.colorScheme.secondary.withOpacity(0.9),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        foregroundColor: Colors.white,
         actions: [
           if (_roadmapData != null)
             Row(
@@ -349,50 +377,55 @@ class _InvestmentsPageState extends State<InvestmentsPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: isDarkMode
-                ? const [Color(0xFF0F0F1E), Color(0xFF1A1A2E)]
-                : const [Color(0xFFF8F9FA), Colors.white],
+                ? AppColors.darkBackgroundGradient
+                : AppColors.backgroundGradient,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                DailyUsageIndicator(
-                  dailyUsageCount: _dailyUsageCount,
-                  maxDailyRoadmaps: MAX_DAILY_ROADMAPS,
-                  isDarkMode: isDarkMode,
-                  theme: theme,
-                ),
-                const SizedBox(height: 16),
-                InvestmentIdeaInput(
-                  ideaController: _ideaController,
-                  budgetController: _budgetController,
-                  isLoading: _isLoading,
-                  onGenerateRoadmap: _generateRoadmap,
-                  isDarkMode: isDarkMode,
-                  theme: theme,
-                  currencySymbol: _currencySymbol,
-                ),
-                const SizedBox(height: 16),
-                if (_errorMessage != null)
-                  ErrorMessage(message: _errorMessage!),
-                const SizedBox(height: 16),
-                if (_roadmapData != null) ...[
-                  if (_roadmapData!.containsKey('markdown_content'))
-                    MarkdownSection(roadmapData: _roadmapData!),
-                  if (!_roadmapData!.containsKey('markdown_content')) ...[
-                    TimelineSection(roadmapData: _roadmapData!),
-                    FinancialBreakdown(
-                      roadmapData: _roadmapData!,
-                      currencySymbol: _currencySymbol,
-                      userBudget: _budgetController.text,
-                    ),
-                    RiskAssessment(roadmapData: _roadmapData!),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  DailyUsageIndicator(
+                    dailyUsageCount: _dailyUsageCount,
+                    maxDailyRoadmaps: MAX_DAILY_ROADMAPS,
+                    isDarkMode: isDarkMode,
+                    theme: theme,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  InvestmentIdeaInput(
+                    ideaController: _ideaController,
+                    budgetController: _budgetController,
+                    isLoading: _isLoading,
+                    onGenerateRoadmap: _generateRoadmap,
+                    isDarkMode: isDarkMode,
+                    theme: theme,
+                    currencySymbol: _currencySymbol,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  if (_errorMessage != null)
+                    ErrorMessage(message: _errorMessage!),
+                  const SizedBox(height: AppSpacing.md),
+                  if (_roadmapData != null) ...[
+                    if (_roadmapData!.containsKey('markdown_content'))
+                      MarkdownSection(roadmapData: _roadmapData!),
+                    if (!_roadmapData!.containsKey('markdown_content')) ...[
+                      TimelineSection(roadmapData: _roadmapData!),
+                      FinancialBreakdown(
+                        roadmapData: _roadmapData!,
+                        currencySymbol: _currencySymbol,
+                        userBudget: _budgetController.text,
+                      ),
+                      RiskAssessment(roadmapData: _roadmapData!),
+                    ],
                   ],
+                  // Add some bottom padding for better scroll experience
+                  const SizedBox(height: AppSpacing.xxl),
                 ],
-              ],
+              ),
             ),
           ),
         ),

@@ -31,7 +31,7 @@ class RoadmapGenerator {
     required Function(Map<String, dynamic>) onFallback,
     required Function(Object) onFallbackError,
   }) async {
-    // Try Together AI first
+    // Call Rax AI first
     try {
       final primaryResponse = await _makePrimaryApiCall(
         ideaController.text,
@@ -62,29 +62,27 @@ class RoadmapGenerator {
       } catch (e) {
         logError('Cleaning API attempt failed', e);
       }
-    } catch (e) {
-      logError('Together AI failed, trying Gemini', e);
-      // If Together AI fails, try Gemini directly for JSON
+      // As an additional attempt, call Rax with a strict-markers prompt to force JSON-only output
       try {
-        final geminiResponse = await _makeGeminiJsonCall(
+        final strictResponse = await _makeRaxJsonCall(
           ideaController.text,
           budgetController.text,
         );
 
-        try {
-          final sanitizedResponse = _sanitizeJsonResponse(geminiResponse);
-          final jsonResponse = json.decode(sanitizedResponse);
+        final sanitizedResponse = _sanitizeJsonResponse(strictResponse);
+        final jsonResponse = json.decode(sanitizedResponse);
 
-          if (_validateRoadmapStructure(jsonResponse)) {
-            onSuccess(jsonResponse);
-            return;
-          }
-        } catch (parseError) {
-          logError('Gemini JSON response parsing failed', parseError);
+        if (_validateRoadmapStructure(jsonResponse)) {
+          onSuccess(jsonResponse);
+          return;
         }
-      } catch (geminiError) {
-        logError('Gemini JSON generation also failed', geminiError);
+      } catch (e) {
+        logError('Strict JSON prompt attempt failed', e);
       }
+    } catch (e) {
+      logError(
+          'Rax AI primary call failed, attempting cleaning and fallback', e);
+      // If primary Rax response didn't parse, the cleaning attempts above will try to fix it.
     }
 
     // Final fallback to markdown generation
@@ -140,12 +138,22 @@ IMPORTANT INSTRUCTIONS:
 6. ALWAYS use the currency symbol "$currencySymbol" for all monetary values
 7. The user's budget is: $budget $currencySymbol - scale financial projections accordingly
 8. All financial amounts must be in $currencySymbol
+ 
+STRICT OUTPUT RULES:
+ - Your reply MUST contain ONLY the JSON object and NOTHING else.
+ - Wrap the JSON object between these exact markers with no extra whitespace or text:
+   <<JSON_START>>
+   { ... }
+   <<JSON_END>>
+ - Do NOT include any analysis, reasoning, or step-by-step thought. If you include such content you will be rejected.
+ - If you cannot produce valid JSON, output EXACTLY:
+   <<JSON_START>>{"error":"CANNOT_PROVIDE_JSON"}<<JSON_END>>
 ''';
 
     return await _aiService.generateInvestmentRoadmap(prompt);
   }
 
-  static Future<String> _makeGeminiJsonCall(String idea, String budget) async {
+  static Future<String> _makeRaxJsonCall(String idea, String budget) async {
     final currencySymbol = await _getCurrencySymbol();
     final currentDate = _getCurrentDate();
 
@@ -189,6 +197,16 @@ IMPORTANT INSTRUCTIONS:
 6. ALWAYS use the currency symbol "$currencySymbol" for all monetary values
 7. The user's budget is: $budget $currencySymbol - scale financial projections accordingly
 8. All financial amounts must be in $currencySymbol
+
+STRICT OUTPUT RULES:
+- Your reply MUST contain ONLY the JSON object and NOTHING else.
+- Wrap the JSON object between these exact markers with no extra whitespace or text:
+  <<JSON_START>>
+  { ... }
+  <<JSON_END>>
+- Do NOT include any analysis, reasoning, or step-by-step thought. If you include such content you will be rejected.
+- If you cannot produce valid JSON, output EXACTLY:
+  <<JSON_START>>{"error":"CANNOT_PROVIDE_JSON"}<<JSON_END>>
 ''';
 
     return await _aiService.generateInvestmentRoadmap(prompt);
@@ -208,14 +226,11 @@ IMPORTANT INSTRUCTIONS:
       final currentDate = _getCurrentDate();
       final currencySymbol = await _getCurrencySymbol();
 
-      // Try first Gemini API key
+      // Try generating markdown via Rax AI as a final fallback
       try {
-        final response = await _callGeminiMarkdownAI(
-          ideaController.text,
-          budgetController.text,
-          currentDate,
-          currencySymbol,
-          'AIzaSyDg8g0vPWjmVjZeIp9FLLEhPQboQwpHERc',
+        final response = await _aiService.generateInvestmentRoadmap(
+          _createFallbackPrompt(ideaController.text, budgetController.text,
+              currentDate, currencySymbol),
         );
 
         final fallbackRoadmap = {
@@ -241,70 +256,43 @@ IMPORTANT INSTRUCTIONS:
         onSuccess(fallbackRoadmap);
         return;
       } catch (e) {
-        print('First Gemini markdown API failed: $e');
-        // Try second Gemini API key
-        final response = await _callGeminiMarkdownAI(
-          ideaController.text,
-          budgetController.text,
-          currentDate,
-          currencySymbol,
-          'AIzaSyDTA0CQeHhWY7dGl2i2CJuqCCWI4DFc1NM',
-        );
-
-        final fallbackRoadmap = {
-          'idea_validity': 'valid',
-          'refinement_suggestions': ['Generated using fallback method'],
-          'investment_timeline': [
-            {'phase': 'Initial', 'start': 'Immediate', 'end': '3 months'},
-          ],
-          'financial_projection': {
-            'total_cost': 0,
-            'expected_revenue': 0,
-            'yearly_growth': [0, 0, 0],
-          },
-          'risk_assessment': {
-            'score': 'medium',
-            'risks': ['Generated using fallback method'],
-            'mitigation': ['See detailed markdown content'],
-          },
-          'word_cloud': [],
-          'markdown_content': response,
-        };
-
-        onSuccess(fallbackRoadmap);
+        debugPrint('Rax markdown fallback failed: $e');
       }
     } catch (e) {
       onError(e);
     }
   }
 
-  static Future<String> _callGeminiMarkdownAI(
-    String investmentIdea,
-    String budget,
-    String currentDate,
-    String currencySymbol,
-    String apiKey,
-  ) async {
-    final prompt = _createFallbackPrompt(
-        investmentIdea, budget, currentDate, currencySymbol);
-
-    return await _aiService.generateInvestmentRoadmap(prompt);
-  }
-
   static String _sanitizeJsonResponse(String rawResponse) {
-    final withoutMarkdown = rawResponse
+    // First, look for strict markers produced by the model
+    const startMarker = '<<JSON_START>>';
+    const endMarker = '<<JSON_END>>';
+
+    if (rawResponse.contains(startMarker) && rawResponse.contains(endMarker)) {
+      final start = rawResponse.indexOf(startMarker) + startMarker.length;
+      final end = rawResponse.indexOf(endMarker);
+      if (end > start) {
+        return rawResponse.substring(start, end).trim();
+      }
+    }
+
+    // Remove common markdown fences and whitespace
+    var cleaned = rawResponse
         .replaceAll(RegExp(r'```json'), '')
         .replaceAll(RegExp(r'```'), '')
         .trim();
 
-    final jsonStart = withoutMarkdown.indexOf('{');
-    final jsonEnd = withoutMarkdown.lastIndexOf('}');
+    // If the model accidentally prints reasoning before JSON (e.g., "Here are my reasoning steps:"),
+    // find the first '{' and the last '}' and extract the substring between them.
+    final jsonStart = cleaned.indexOf('{');
+    final jsonEnd = cleaned.lastIndexOf('}');
 
     if (jsonStart >= 0 && jsonEnd > jsonStart) {
-      return withoutMarkdown.substring(jsonStart, jsonEnd + 1);
+      return cleaned.substring(jsonStart, jsonEnd + 1).trim();
     }
 
-    return withoutMarkdown;
+    // As a last resort, return cleaned raw response (caller will attempt parse/cleaning)
+    return cleaned;
   }
 
   static bool _validateRoadmapStructure(Map<String, dynamic> data) {

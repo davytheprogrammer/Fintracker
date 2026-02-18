@@ -26,25 +26,51 @@ class _RegisterState extends State<Register> {
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
-      setState(() => _loading = true);
+      setState(() {
+        _loading = true;
+        _error = '';
+      });
       try {
         final UserCredential result =
             await _auth.createUserWithEmailAndPassword(
-          email: _email.trim(),
+          email: _email.trim().toLowerCase(),
           password: _password,
         );
 
         if (result.user != null) {
+          await result.user!.updateDisplayName(_nickname.trim());
           await _firestore.collection('users').doc(result.user!.uid).set({
-            'nickname': _nickname,
+            'displayName': _nickname.trim(),
+            'email': _email.trim().toLowerCase(),
             'createdAt': FieldValue.serverTimestamp(),
           });
-
           // Registration successful, wrapper will handle navigation
         }
       } on FirebaseAuthException catch (e) {
+        String message;
+        switch (e.code) {
+          case 'email-already-in-use':
+            message = 'An account with this email already exists.';
+            break;
+          case 'invalid-email':
+            message = 'Please enter a valid email address.';
+            break;
+          case 'weak-password':
+            message = 'Password is too weak. Use at least 8 characters with uppercase and numbers.';
+            break;
+          case 'operation-not-allowed':
+            message = 'Registration is currently disabled.';
+            break;
+          default:
+            message = e.message ?? 'Registration failed. Please try again.';
+        }
         setState(() {
-          _error = e.message ?? 'An error occurred during registration';
+          _error = message;
+          _loading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _error = 'An unexpected error occurred. Please try again.';
           _loading = false;
         });
       }
@@ -236,9 +262,21 @@ class _RegisterState extends State<Register> {
                       ),
                     ),
                     obscureText: _obscurePassword,
-                    validator: (val) => val?.isEmpty ?? true
-                        ? 'Please enter your password'
-                        : null,
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (val.length < 8) {
+                        return 'Password must be at least 8 characters';
+                      }
+                      if (!val.contains(RegExp(r'[A-Z]'))) {
+                        return 'Password must contain an uppercase letter';
+                      }
+                      if (!val.contains(RegExp(r'[0-9]'))) {
+                        return 'Password must contain a number';
+                      }
+                      return null;
+                    },
                     onChanged: (val) => setState(() => _password = val),
                   ),
                   const SizedBox(height: 20),
@@ -283,9 +321,15 @@ class _RegisterState extends State<Register> {
                       ),
                     ),
                     obscureText: _obscureConfirmPassword,
-                    validator: (val) => val?.isEmpty ?? true
-                        ? 'Please confirm your password'
-                        : null,
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (val != _password) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
                     onChanged: (val) => setState(() => {}),
                   ),
                   const SizedBox(height: 20),

@@ -64,8 +64,8 @@ class CurrencySelectScreen extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: DropdownButtonFormField<Currency>(
-                  initialValue: provider.selectedCurrency,
+                child: DropdownButtonFormField<String>(
+                  initialValue: provider.selectedCurrency?.code,
                   decoration: const InputDecoration(
                     labelText: 'Preferred Currency',
                     prefixIcon: Icon(Icons.currency_exchange),
@@ -76,12 +76,9 @@ class CurrencySelectScreen extends StatelessWidget {
                     ),
                   ),
                   items: _currencies.map((currency) {
-                    final curr = Currency(
-                      code: currency['code']!,
-                      symbol: currency['symbol']!,
-                    );
-                    return DropdownMenuItem<Currency>(
-                      value: curr,
+                    final code = currency['code']!;
+                    return DropdownMenuItem<String>(
+                      value: code,
                       child: Row(
                         children: [
                           Text(
@@ -101,13 +98,21 @@ class CurrencySelectScreen extends StatelessWidget {
                       ),
                     );
                   }).toList(),
-                  onChanged: (Currency? value) {
-                    if (value != null) {
-                      provider.setCurrency(value);
+                  onChanged: (String? code) {
+                    if (code != null) {
+                      final map = _currencies.firstWhere(
+                        (c) => c['code'] == code,
+                        orElse: () => {'code': code, 'symbol': ''},
+                      );
+                      final curr = Currency(
+                        code: map['code']!,
+                        symbol: map['symbol'] ?? '',
+                      );
+                      provider.setCurrency(curr);
                     }
                   },
-                  validator: (value) {
-                    if (value == null) {
+                  validator: (String? value) {
+                    if (value == null || value.isEmpty) {
                       return 'Please select a currency';
                     }
                     return null;

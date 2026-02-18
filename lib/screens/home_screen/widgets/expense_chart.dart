@@ -47,7 +47,7 @@ class _ExpenseChartState extends State<ExpenseChart>
     for (var tx in widget.transactions) {
       if (tx['type'] == 'expense') {
         String category = tx['category'] ?? 'Other';
-        double amount = tx['amount'];
+        double amount = (tx['amount'] as num?)?.toDouble() ?? 0.0;
         categoryExpenses[category] = (categoryExpenses[category] ?? 0) + amount;
         totalExpense += amount;
       }

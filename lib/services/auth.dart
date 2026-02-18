@@ -1,103 +1,156 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:Finspense/models/the_user.dart';
 import 'package:Finspense/repositories/user_repository.dart';
 import 'package:Finspense/models/user_model.dart';
 
 class AuthService {
-  // Create instance of our FirebaseAuth, providing us with methods from the FirebaseAuth class
-  // final means wont change in the future
-  // underscore means private, only can use in this file
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // create TheUser object based on Firebase user
+  /// Convert Firebase User to TheUser.
   TheUser? _userFromFirebaseUser(User? user) {
-    // return uid from user object if user is not null
-    return user != null ? TheUser(uid: user.uid) : null;
+    return user != null
+        ? TheUser(
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+          )
+        : null;
   }
 
-  // auth change user stream
+  /// Auth state change stream.
   Stream<TheUser?> get user {
-    return _auth
-        .authStateChanges()
-        // .map((User? user) => _userFromFirebaseUser(user));
-        .map(_userFromFirebaseUser); // simplified method
+    return _auth.authStateChanges().map(_userFromFirebaseUser);
   }
 
-  // method to login anonymously (asynchronous task)
-  Future signInAnon() async {
+  /// Sign in anonymously.
+  Future<TheUser?> signInAnon() async {
     try {
-      // await means will wait till this is complete
       UserCredential result = await _auth.signInAnonymously();
-      User? user = result.user;
-      return _userFromFirebaseUser(user!);
+      return _userFromFirebaseUser(result.user);
     } catch (e) {
-      print(e.toString());
+      debugPrint('Error signing in anonymously: $e');
       return null;
     }
   }
 
-  // method to login with email and password
-  Future signInWithEmailAndPassword(String email, String password) async {
+  /// Sign in with email and password.
+  /// Returns the user on success, null on failure.
+  /// Throws [FirebaseAuthException] for specific error handling by the UI.
+  Future<TheUser?> signInWithEmailAndPassword(
+      String email, String password) async {
+    final trimmedEmail = email.trim().toLowerCase();
+
+    if (trimmedEmail.isEmpty || password.isEmpty) {
+      throw FirebaseAuthException(
+        code: 'invalid-input',
+        message: 'Email and password are required.',
+      );
+    }
+
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: email,
+        email: trimmedEmail,
         password: password,
       );
-      User? user = result.user;
-      return _userFromFirebaseUser(user);
+      return _userFromFirebaseUser(result.user);
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
-      print(e.toString());
+      debugPrint('Error signing in: $e');
       return null;
     }
   }
 
-  // method to register with email and password
-  Future registerWithEmailAndPassword(
+  /// Register a new user with email and password.
+  /// Creates a Firestore user profile on successful registration.
+  Future<TheUser?> registerWithEmailAndPassword(
     String displayName,
     String email,
     String password,
-    String type,
   ) async {
-    try {
-      UserCredential result = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((user) {
-        user.user!.updateDisplayName(displayName);
-        return user;
-      });
-      User? user = result.user;
+    final trimmedEmail = email.trim().toLowerCase();
+    final trimmedName = displayName.trim();
 
-      // create a new user profile using UserRepository
+    if (trimmedEmail.isEmpty || password.isEmpty || trimmedName.isEmpty) {
+      throw FirebaseAuthException(
+        code: 'invalid-input',
+        message: 'All fields are required.',
+      );
+    }
+
+    if (password.length < 8) {
+      throw FirebaseAuthException(
+        code: 'weak-password',
+        message: 'Password must be at least 8 characters.',
+      );
+    }
+
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: trimmedEmail,
+        password: password,
+      );
+
+      User? user = result.user;
+      if (user == null) return null;
+
+      // Set display name on Firebase user
+      await user.updateDisplayName(trimmedName);
+
+      // Create user profile in Firestore
       final userRepository = UserRepository();
       await userRepository.createOrUpdateUser(UserModel(
-        uid: user!.uid,
+        uid: user.uid,
+        displayName: trimmedName,
+        email: trimmedEmail,
         goals: [],
-        currency: Currency(code: 'KES', symbol: 'KES'), // Default currency
+        currency: Currency(code: 'KES', symbol: 'KES'),
         incomeRange: 'Not specified',
         ageRange: 'Not specified',
-        occupation: displayName, // Using displayName as occupation placeholder
-        location:
-            Location(country: 'Kenya', city: 'Nairobi'), // Default location
+        occupation: 'Not specified',
+        location: Location(country: 'Kenya', city: 'Nairobi'),
         riskTolerance: 'Moderate',
+        createdAt: DateTime.now(),
       ));
 
-      print('print #2:');
-      print(user);
       return _userFromFirebaseUser(user);
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
-      print(e.toString());
+      debugPrint('Error registering: $e');
       return null;
     }
   }
 
-  // method to logout
-  // future for async tasks which takes some time to complete
-  Future signOut() async {
+  /// Send password reset email.
+  Future<void> resetPassword(String email) async {
+    final trimmedEmail = email.trim().toLowerCase();
+
+    if (trimmedEmail.isEmpty) {
+      throw FirebaseAuthException(
+        code: 'invalid-email',
+        message: 'Please enter your email address.',
+      );
+    }
+
     try {
-      return await _auth.signOut();
+      await _auth.sendPasswordResetEmail(email: trimmedEmail);
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
-      print(e.toString());
-      return null;
+      debugPrint('Error sending password reset email: $e');
+      rethrow;
+    }
+  }
+
+  /// Sign out the current user.
+  Future<void> signOut() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      debugPrint('Error signing out: $e');
+      rethrow;
     }
   }
 }

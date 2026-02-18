@@ -1,41 +1,33 @@
 {
   "project_info": {
-    "project_number": "541141985807",
-    "project_id": "finflow-41b05",
-    "storage_bucket": "finflow-41b05.firebasestorage.app"
+    "project_number": "822787190292",
+    "project_id": "finspense",
+    "storage_bucket": "finspense.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:541141985807:android:b9738f26bf3c353c43517a",
+        "mobilesdk_app_id": "1:822787190292:android:e3351953a7601f59b74101",
         "android_client_info": {
-          "package_name": "com.rax.finflow"
+          "package_name": "com.rax.finspense"
         }
       },
       "oauth_client": [
         {
-          "client_id": "541141985807-47s0giej9tfad2hh57tis3nef02mt08o.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.rax.finflow",
-            "certificate_hash": "c299df93c63c2680e43a9b86b37b0ba736b526a2"
-          }
-        },
-        {
-          "client_id": "541141985807-naqu6sscls1h23lgsd6id6ksr27ajhtb.apps.googleusercontent.com",
+          "client_id": "822787190292-cssgqeo421d1eu30f6cqeh39dtefbh29.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCZx0Vh3V-t4iPREGII9s2589r_3RqHpDo"
+          "current_key": "AIzaSyCDLr-Bc3BDW-WoLa2Aet8FF5Qnu4ouKD0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "541141985807-naqu6sscls1h23lgsd6id6ksr27ajhtb.apps.googleusercontent.com",
+              "client_id": "822787190292-cssgqeo421d1eu30f6cqeh39dtefbh29.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

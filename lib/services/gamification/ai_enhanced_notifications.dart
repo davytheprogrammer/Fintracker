@@ -48,7 +48,7 @@ Example: "🎉 Amazing! Your first transaction logged. Keep building that saving
       // Ensure message is not too long
       return message.length > 100 ? message.substring(0, 97) + '...' : message;
     } catch (e) {
-      print('Error generating AI badge message: $e');
+      debugPrint('Error generating AI badge message: $e');
       return '🎉 Congratulations on unlocking ${badge.name}! Keep up the great work!';
     }
   }
@@ -80,7 +80,7 @@ Example: "📈 Spending on dining up 25%. Consider meal prepping to save KES 2,0
 
       return message.length > 120 ? message.substring(0, 117) + '...' : message;
     } catch (e) {
-      print('Error generating predictive alert: $e');
+      debugPrint('Error generating predictive alert: $e');
       return '📊 Time to review your spending habits! 💡';
     }
   }
@@ -110,7 +110,7 @@ Example: "🚀 Halfway to your dream vacation! Just 3 more months of consistent 
 
       return message.length > 100 ? message.substring(0, 97) + '...' : message;
     } catch (e) {
-      print('Error generating goal motivation: $e');
+      debugPrint('Error generating goal motivation: $e');
       return '🎯 You\'re making great progress! Keep going! 💪';
     }
   }
@@ -141,7 +141,7 @@ Example: "🔥 7-day savings streak! You're building wealth super fast! 🚀"
 
       return message.length > 90 ? message.substring(0, 87) + '...' : message;
     } catch (e) {
-      print('Error generating streak encouragement: $e');
+      debugPrint('Error generating streak encouragement: $e');
       return '🔥 $currentCount-day streak! You\'re unstoppable!';
     }
   }

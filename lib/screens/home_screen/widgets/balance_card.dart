@@ -45,8 +45,8 @@ class BalanceCard extends StatefulWidget {
 
 class _BalanceCardState extends State<BalanceCard>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scaleAnimation;
+  AnimationController? _controller;
+  Animation<double>? _scaleAnimation;
   bool _isHovering = false;
   bool _hasError = false;
   String? _errorMessage;
@@ -66,7 +66,7 @@ class _BalanceCardState extends State<BalanceCard>
 
       _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(
         CurvedAnimation(
-          parent: _controller,
+          parent: _controller!,
           curve: Curves.easeOut,
         ),
       );
@@ -85,7 +85,11 @@ class _BalanceCardState extends State<BalanceCard>
 
   @override
   void dispose() {
-    _controller.dispose();
+    try {
+      _controller?.dispose();
+    } catch (e) {
+      debugPrint('Error disposing BalanceCard controller: $e');
+    }
     super.dispose();
   }
 
@@ -99,7 +103,7 @@ class _BalanceCardState extends State<BalanceCard>
       onEnter: (_) => _handleHoverStart(),
       onExit: (_) => _handleHoverEnd(),
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: _controller!,
         builder: (context, child) => _buildCard(context, child),
       ),
     );
@@ -107,17 +111,17 @@ class _BalanceCardState extends State<BalanceCard>
 
   void _handleHoverStart() {
     setState(() => _isHovering = true);
-    _controller.forward();
+    _controller?.forward();
   }
 
   void _handleHoverEnd() {
     setState(() => _isHovering = false);
-    _controller.reverse();
+    _controller?.reverse();
   }
 
   Widget _buildCard(BuildContext context, Widget? child) {
     return Transform.scale(
-      scale: _scaleAnimation.value,
+      scale: _scaleAnimation?.value ?? 1.0,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: _kHorizontalMargin),
         padding: const EdgeInsets.all(_kCardPadding),
