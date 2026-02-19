@@ -45,10 +45,8 @@ class CurrencySelectScreen extends StatelessWidget {
               Text(
                 'Choose the currency you use most for your financial tracking',
                 style: AppTypography.bodyLarge.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withOpacity(0.7),
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
               ),
               const SizedBox(height: AppSpacing.xxxl),

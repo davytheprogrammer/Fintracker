@@ -18,11 +18,16 @@ android {
         // while maintaining modern security and features
         minSdkVersion flutter.minSdkVersion
         // Use latest targetSdk for PlayStore compliance and modern features
-        targetSdk 35
-        versionCode 3
-        versionName "1.0.2"
+        targetSdk 36
+        // Bumped for new Play Store release
+        versionCode 4
+        versionName "1.0.3"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // Ensure 64-bit ABIs are packaged so high-end devices have the native libraries they need.
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
     }
 
     compileOptions {
@@ -49,8 +54,12 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            // Temporarily disable code shrinking/minification to avoid R8-related
+            // crashes on some device ABIs while we investigate root cause.
+            // This makes the APK/AAB larger but is much safer for Play acceptance.
+            minifyEnabled false
+            shrinkResources false
+            // Keep ProGuard file reference in case we re-enable shrinking later.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
@@ -73,6 +82,12 @@ android {
                 'META-INF/notice.txt',
                 'META-INF/*.kotlin_module'
             ]
+        }
+        // Preserve native libraries from plugins and avoid conflicts that can
+        // cause crashes on certain ABIs. Pick-first is safe here because these
+        // are identical native libs provided by different dependencies.
+        jniLibs {
+            pickFirsts += ['**/*.so']
         }
     }
 }
