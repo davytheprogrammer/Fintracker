@@ -128,13 +128,34 @@ class _BalanceCardState extends State<BalanceCard>
         decoration: _buildCardDecoration(),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(_kBorderRadius - 4),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: _buildCardContent(),
-          ),
+          child: _buildConditionalBackdrop(),
         ),
       ),
     );
+  }
+
+  Widget _buildConditionalBackdrop() {
+    // Check device capabilities to decide whether to use BackdropFilter
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Use BackdropFilter on lower resolution devices, fallback on high-res devices
+    if (pixelRatio <= 2.5) {
+      return BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: _buildCardContent(),
+      );
+    } else {
+      // For high-resolution devices, use a simple translucent overlay
+      // that mimics the blurred effect without the performance hit
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2), // Semi-transparent white to mimic blur effect
+          borderRadius: BorderRadius.circular(_kBorderRadius - 4),
+        ),
+        child: _buildCardContent(),
+      );
+    }
   }
 
   BoxDecoration _buildCardDecoration() {

@@ -1,30 +1,32 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:Finspense/services/rax_ai_service.dart';
 
 class AIService {
   static final AIService _instance = AIService._internal();
   factory AIService() => _instance;
   AIService._internal() {
-    // Hardcoded Rax API key for now (replace with secure storage later)
-    const _hardcodedRaxKey =
-        'rax_7588fc4a18f563c72658cf8bb5acc43da94878ecfa9fa66f0f71c3f5aa7de8ce';
-    _client = RaxAIClient(_hardcodedRaxKey);
-    _initialized = true;
-  }
-
-  late RaxAIClient _client;
-  bool _initialized = false;
-
-  /// Initialize AIService with your Rax API key. Call once at app startup.
-  void init(String apiKey) {
-    if (!_initialized) {
+    // Initialize with environment variable if available
+    final apiKey = dotenv.maybeGet('RAX_AI_KEY');
+    if (apiKey != null) {
       _client = RaxAIClient(apiKey);
       _initialized = true;
     }
   }
 
+  RaxAIClient? _client;
+  bool _initialized = false;
+
+  /// Initialize AIService with your Rax API key. Call once at app startup.
+  /// Overrides the default local key if provided.
+  void init(String apiKey) {
+    _client?.close();
+    _client = RaxAIClient(apiKey);
+    _initialized = true;
+  }
+
   void dispose() {
-    if (_initialized) _client.close();
+    if (_initialized) _client?.close();
     _initialized = false;
   }
 
@@ -55,8 +57,10 @@ class AIService {
   }
 
   Future<String> _callRaxAI(String prompt, String context) async {
-    if (!_initialized)
-      throw Exception('AIService not initialized. Call init(apiKey) first.');
+    if (!_initialized || _client == null) {
+      throw Exception(
+          'AIService not initialized. Call init(apiKey) at app startup.');
+    }
 
     final systemMessage = _getSystemMessage(context);
     final messages = [
@@ -90,7 +94,7 @@ class AIService {
     }
 
     try {
-      final resp = await _client.createChatCompletion(
+      final resp = await _client!.createChatCompletion(
         messages,
         model: 'rax-4.5',
         temperature: temperature,

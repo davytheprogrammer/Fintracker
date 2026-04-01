@@ -105,21 +105,7 @@ class _TransactionFABState extends State<TransactionFAB>
       children: [
         // Blur overlay
         if (_isExpanded)
-          AnimatedBuilder(
-            animation: _blurAnimation,
-            builder: (context, child) {
-              return BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: _blurAnimation.value,
-                  sigmaY: _blurAnimation.value,
-                ),
-                child: GestureDetector(
-                  onTap: _handleFABPressed,
-                  child: Container(color: Colors.black.withOpacity(0.1)),
-                ),
-              );
-            },
-          ),
+          _buildConditionalBackdropOverlay(),
 
         // FAB Menu
         Padding(
@@ -208,6 +194,42 @@ class _TransactionFABState extends State<TransactionFAB>
         ),
       ),
     );
+  }
+
+  Widget _buildConditionalBackdropOverlay() {
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+    // Use BackdropFilter on lower resolution devices, fallback on high-res devices
+    if (pixelRatio <= 2.5) {
+      return AnimatedBuilder(
+        animation: _blurAnimation,
+        builder: (context, child) {
+          return BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: _blurAnimation.value,
+              sigmaY: _blurAnimation.value,
+            ),
+            child: GestureDetector(
+              onTap: _handleFABPressed,
+              child: Container(color: Colors.black.withOpacity(0.1)),
+            ),
+          );
+        },
+      );
+    } else {
+      // For high-resolution devices, use a simple translucent overlay
+      return AnimatedBuilder(
+        animation: _blurAnimation,
+        builder: (context, child) {
+          return GestureDetector(
+            onTap: _handleFABPressed,
+            child: Container(
+              color: Colors.black.withOpacity(_blurAnimation.value > 0 ? 0.1 : 0),
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override

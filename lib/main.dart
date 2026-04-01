@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:Finspense/models/the_user.dart';
 import 'package:Finspense/services/auth.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +22,37 @@ class Routes {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Warning: .env file not found or failed to load: $e");
+  }
+
+  // Add error handling for production
+...
+    print('Flutter Error: ${details.exception}');
+    print('Stack trace: ${details.stack}');
+
+    // Report to crash reporting service in production
+    if (kReleaseMode) {
+      // Add crash reporting service here if needed
+    }
+  };
+
+  // Handle uncaught errors from dart:async
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    print('Unhandled Error: $error');
+    print('Stack trace: $stack');
+
+    // Report to crash reporting service in production
+    if (kReleaseMode) {
+      // Add crash reporting service here if needed
+    }
+    return true;
+  };
+
   await Firebase.initializeApp();
   runApp(
     MultiProvider(
